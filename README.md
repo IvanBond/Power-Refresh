@@ -1,5 +1,5 @@
 # Power-Refresh
-Refresher of Excel files with Power Query and PowerPivot model as Visual Basic Script
+Refresher of Excel files with Power Query and PowerPivot model as Visual Basic Script (VBS).
 
 This is an open source refresher that is aimed to optimize self-service Excel solutions on Windows workstations
   without administator rights
