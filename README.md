@@ -31,8 +31,11 @@ Nothing should stop Self-Service BI developers :-). That's why this project done
 VBS is very similar to VBA, which is usually 'must-have' skill for reporting specialist. There are a lot of samples on the Internet how to convert VBA to VBS, how to run VBA from VBS and vice versa.
 Therefore, basic script from this project can be adapted to particular needs easily by those who are familiar with VBA/VBS.
 
-How to use:
+How to use
 Create folder 'Power Refresh' on C:\ drive
+
 Download all project files to this folder
+
 Read Instruction in 'Refresher.vbs' to understand logic, Report vs Data Transfer, and Scopes concept
+
 Launch Refresher.vbs from command line or via scheduled task in Task Scheduler
