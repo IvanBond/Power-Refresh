@@ -32,7 +32,7 @@ VBS is very similar to VBA, which is usually 'must-have' skill for reporting spe
 Therefore, basic script from this project can be adapted to particular needs easily by those who are familiar with VBA/VBS.
 
 How to use:
-1 Create folder 'Power Refresh' on C:\ drive
-2 Download all project files to this folder
-3 Read Instruction in 'Refresher.vbs' to understand logic, Report vs Data Transfer, and Scopes concept
-4 Launch Refresher.vbs from command line or via scheduled task in Task Scheduler
+Create folder 'Power Refresh' on C:\ drive
+Download all project files to this folder
+Read Instruction in 'Refresher.vbs' to understand logic, Report vs Data Transfer, and Scopes concept
+Launch Refresher.vbs from command line or via scheduled task in Task Scheduler
