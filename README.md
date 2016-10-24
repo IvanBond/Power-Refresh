@@ -1,5 +1,5 @@
 # Refresher for Self-Service BI solutions based on Excel
-Visual Basic Script (VBS) refresher for Excel files with Power Query and PowerPivot model, helping to update workbooks in automated way (+ can be scheduled).
+Visual Basic Script (VBS) refresher for Excel files with Power Query and PowerPivot model, helping to update workbooks in automated way (+ can be scheduled). In addition, some useful VBS files that can be used in Excel-based reporting.
 
 This is an open-source refresher that is aimed to optimize self-service Excel solutions on Windows workstations
   without administator rights
