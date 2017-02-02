@@ -1,9 +1,0 @@
-#If VBA7 then
-	Private Declare PtrSafe Function GetCurrentProcessId Lib "kernel32" () As LongPtr
-#Else
-	Private Declare Function GetCurrentProcessId Lib "kernel32" () As Long
-#End if
-
-Function GetProcessID()
-	GetProcessID = GetCurrentProcessId
-End Function
