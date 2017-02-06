@@ -11,21 +11,21 @@ only Excel is needed, and possibility to run VBA macros on workstation.
 
 # How to use this solution
 
-    1. Download [Power Refresh.zip](https://github.com/IvanBond/Power-Refresh/releases)
-    2. Unpack it on C:\ drive
-    3. Open 'Reports Controller' and test how it works on test files
-    4. Configure your own schedule and parameters for your workbooks
-    5. Enjoy!
+1. Download [Power Refresh.zip](https://github.com/IvanBond/Power-Refresh/releases)
+2. Unpack it on C:\ drive
+3. Open 'Reports Controller' and test how it works on test files
+4. Configure your own schedule and parameters for your workbooks
+5. Enjoy!
 
 # Additional scenarios
 
 If you don't like idea to use proposed Excel scheduler (Reports Controller), you still able to use functionality of Refresher.xlsb, which handles refresh process taking into consideraion all provided parameters.
 
-Just call it from VBSciprt or .BAT file, see sample [filename.vbs]() (will be added later).
+Just call it from VBSciprt or .BAT file, see sample [Starter.vbs](https://github.com/IvanBond/Power-Refresh/blob/master/Starter.vbs).
 
 How to schedule .vbs or .bat you may see [here](https://www.youtube.com/watch?v=oC_i1Cf9O2w).
 
-# Lyrics
+# History of idea
 
 Typically, reporting specialists are interested in automated way of reports preparation. 
 
