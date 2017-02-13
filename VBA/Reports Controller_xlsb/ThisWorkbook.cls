@@ -13,3 +13,4 @@ Private Sub Workbook_Open()
     ' TODO: check if something still In Process - change to n/a
     ' or scan logs folder
 End Sub
+

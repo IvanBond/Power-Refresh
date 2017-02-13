@@ -22,8 +22,6 @@ Sub Check_And_Run()
     
     Call Set_Global_Variables
     Set objShell = CreateObject("WScript.Shell")
-    Set objScriptEngine = CreateObject("scriptcontrol")
-    objScriptEngine.Language = "JScript"
     
     If Control_Table.DataBodyRange Is Nothing Then
         MsgBox "No reports for execution", vbExclamation + vbOKOnly, "Information"
@@ -92,40 +90,20 @@ Sub Check_And_Run()
                     "/e" & objScriptEngine.Run("encodeURIComponent", Collect_Parameters(cell.Row)))
                 
                 ' therefore - /r is last parameter
-                ' order is important for Parsing macro in Refresher.xlsb
+                ' order is important for Parsing macro in Refresher.xlsb !!!
                 
-                ' in case of Parallel refresh of Scopes we should start new Excel instance for each Scope
-                Set objProc = objShell.Exec(Excel_Path & " /x " & _
-                        "/e" & objScriptEngine.Run("encodeURIComponent", Collect_Parameters(cell.Row)) & _
-                        " /r """ & Refresher_Path & """")
-
-' OLD Part when Reports Controller had started separate processes for different scopes
-' now Refresher starts it on his own
-'                If Control_Table.Parent.Cells(cell.Row, _
-'                    Control_Table.ListColumns("Parallel Refresh of Scopes").Range.Column).Value = "Y" Then
-'
-'                    arrScopes = Split(Control_Table.Parent.Cells(cell.Row, _
-'                        Control_Table.ListColumns("Scopes").Range.Column).Value, ",")
-'
-'                    For i = LBound(arrScopes) To UBound(arrScopes)
-'                        ' call Collect_Parameters with Scope param
-'                        Set objProc = objShell.Exec(Excel_Path & " /x " & _
-'                            "/e" & objScriptEngine.Run("encodeURIComponent", Collect_Parameters(cell.Row, Trim(arrScopes(i)))) & _
-'                            " /r """ & Refresher_Path & """")
-'
-'                        Application.Wait Now() + TimeValue("00:00:03") ' just in case pause between start of Excel application
-'
-'                    Next i
-'
-'                Else
-'                    ' not parallel execution
-'                    ' just pass all parameters to Refresher
-'                    Set objProc = objShell.Exec(Excel_Path & " /x " & _
-'                        "/e" & objScriptEngine.Run("encodeURIComponent", Collect_Parameters(cell.Row)) & _
-'                        " /r """ & Refresher_Path & """")
-'                End If
+                If Val(Application.Version) >= 15 Then
+                    Set objProc = objShell.Exec(Excel_Path & " /x " & _
+                            "/e" & WorksheetFunction.encodeURL(Collect_Parameters(cell.Row)) & _
+                            " /r """ & Refresher_Path & """")
+                Else
+                    ' EncodeURL is not available in prev versions
+                    Set objProc = objShell.Exec(Excel_Path & " /x " & _
+                            "/e" & Support_Funcitons.URLEncode(Collect_Parameters(cell.Row)) & _
+                            " /r """ & Refresher_Path & """")
+                End If
                 
-                ' URL encoding is needed because otherwise no chance to pass values with spaces and special chars
+                ' URL encoding is important because otherwise no chance to pass values with spaces and special chars
                 ' Excel execution through shell will trigger every value separated by space as new file to be opened
                 
                 ' can run without wait if no workbooks in
@@ -183,21 +161,11 @@ Function Is_Row_Valid(row_id As Long) As Boolean
     Is_Row_Valid = True
 End Function
 
-Function encodeURL(str As String)
-    Dim ScriptEngine As Object
-    ' encode spaces, commas, other chars using URL encoded chars
-    ' http://www.degraeve.com/reference/urlencoding.php
-    
-    Set ScriptEngine = CreateObject("scriptcontrol")
-    ScriptEngine.Language = "JScript"
-    encodeURL = ScriptEngine.Run("encodeURIComponent", str)
-    Set ScriptEngine = Nothing
-End Function
-
 Function Collect_Parameters(report_row_id As Long, Optional Scope As String) As String
     Dim str As String
     Dim Field_Name As String
     
+    ' Sample
     ' Collect_Parameters = "/debug_mode/log_enabled/file_path:C:\Temp\Test.xlsx/" & _
         "result_folder_path:\\server_name\ssis in\/macro_before:test/macro_after:after" & _
         "/error_email_to:test@domain.com/success_email_to:test@domain.com/result_filename:reportX/extension:xlsb" & _
@@ -337,7 +305,6 @@ Function Collect_Parameters(report_row_id As Long, Optional Scope As String) As 
             Control_Table.ListColumns(Field_Name).Range.Column).Value
     End If
 
-
     Field_Name = "Parameters"
     If Control_Table.Parent.Cells(report_row_id, _
         Control_Table.ListColumns(Field_Name).Range.Column).Value <> vbNullString Then
@@ -362,5 +329,5 @@ Function Collect_Parameters(report_row_id As Long, Optional Scope As String) As 
         Collect_Parameters = Collect_Parameters & "/scopes:" & Replace(Scope, "/", "{|}")
     End If
     
-    Debug.Print Collect_Parameters
+    ' Debug.Print Collect_Parameters
 End Function

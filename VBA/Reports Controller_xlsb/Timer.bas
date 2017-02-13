@@ -5,7 +5,7 @@ Option Explicit
 
 #If VBA7 Or VBA8 Then
 '  Code is running in the new VBA7 editor
-    
+        
     Public Declare PtrSafe Function SetTimer Lib "user32" ( _
         ByVal HWnd As Long, _
         ByVal nIDEvent As Long, _
@@ -34,7 +34,7 @@ Public TimerID As Long
 Public Const timerSeconds As Single = 60
 
 Sub Test()
-    With ThisWorkbook.Sheets("Control Panel").Shapes("StartStop Button")
+    With ThisWorkbook.Sheets("ControlPanel").Shapes("StartStop Button")
         If .TextFrame2.TextRange.Characters.Text = "Start Processing" Then
             .TextFrame2.TextRange.Characters.Text = "Stop Processing"
             .Fill.ForeColor.RGB = RGB(209, 0, 36) ' Red

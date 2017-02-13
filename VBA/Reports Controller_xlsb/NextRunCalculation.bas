@@ -3,7 +3,7 @@ Option Explicit
 '
 '
 
-Sub dff()
+Sub TestNextRun()
     ' Debug.Print GetClosestTime(Now() - 30, CDbl(CDate("00:00:10")))
     Set_Global_Variables
     Dim a
