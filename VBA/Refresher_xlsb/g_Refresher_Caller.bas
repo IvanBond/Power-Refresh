@@ -8,7 +8,7 @@ Sub Refresher_Caller(Optional Scope As String, Optional Target_File As String)
     ' files one-by-one
     ' in case of error during execution of this sub
     ' ...
-    Dim objShell, objScriptEngine, objProc As Object
+    Dim objShell, objProc As Object
     Dim waitOnReturn As Boolean: waitOnReturn = True
     Dim windowStyle As Integer: windowStyle = 1
     Dim tmp_process_id As Long
@@ -19,9 +19,7 @@ Sub Refresher_Caller(Optional Scope As String, Optional Target_File As String)
     
     On Error GoTo ErrHandler ' in case of error with creation of objects
     Set objShell = CreateObject("WScript.Shell")
-    Set objScriptEngine = CreateObject("scriptcontrol")
-    objScriptEngine.Language = "JScript"
-    
+        
     ' for subsequent execution use Run command as it can wait until target application is closed
     ' http://stackoverflow.com/questions/15951837/wait-for-shell-command-to-complete
     'objShell.Run """" & Excel_Path & """ /x " & _
@@ -39,9 +37,17 @@ Sub Refresher_Caller(Optional Scope As String, Optional Target_File As String)
     Call Write_Log("Creating new instance of Refresher... " & Target_File & Scope)
     
     On Error Resume Next ' catch error if cannot create object
-    Set objProc = objShell.Exec(Excel_Path & " /x " & _
-                        "/e" & objScriptEngine.Run("encodeURIComponent", Collect_Parameters(Scope, Target_File)) & _
+    
+    If Val(Application.Version) >= 15 Then
+        Set objProc = objShell.Exec(Excel_Path & " /x " & _
+                        "/e" & WorksheetFunction.EncodeURL(Collect_Parameters(Scope, Target_File)) & _
                         " /r """ & Refresher_Path & """")
+    Else
+        ' Excel 2013 and above have function WorksheetFunction.EncodeURL
+        Set objProc = objShell.Exec(Excel_Path & " /x " & _
+                        "/e" & Support_Functions.URLEncode(Collect_Parameters(Scope, Target_File)) & _
+                        " /r """ & Refresher_Path & """")
+    End If
     
     tmp_process_id = objProc.ProcessID
     If Err.Number <> 0 Then
@@ -142,7 +148,6 @@ Exit_Sub:
     
     Set objProc = Nothing
     Set objShell = Nothing
-    Set objScriptEngine = Nothing
     
     Exit Sub
 

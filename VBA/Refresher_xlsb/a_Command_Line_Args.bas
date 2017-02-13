@@ -20,7 +20,7 @@ Sub ParseArgs(sCmdLine As String)
     
     iEnd = InStr(1, sCmdLine, " /r """) ' if file path provided in the end
     sArgs = decodeURL(Mid(sCmdLine, iStart + 6, iEnd - iStart - 6))
-            
+    
     If Len(sArgs) = 0 Then Exit Sub       'No command line parameters were given
             
     ' all '/' chars have to be replaced before pass to command line
@@ -90,13 +90,4 @@ Sub ParseArgs(sCmdLine As String)
     Next x
     
 End Sub
-
-Public Function decodeURL(str As String) As String
-    Dim ScriptEngine As Object
-
-    Set ScriptEngine = CreateObject("scriptcontrol")
-    ScriptEngine.Language = "JScript"
-    decodeURL = ScriptEngine.Run("decodeURIComponent", str)
-    Set ScriptEngine = Nothing
-End Function
 
