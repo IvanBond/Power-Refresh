@@ -184,11 +184,11 @@ Function Collect_Parameters(Optional Scope As String, Optional Target_File As St
         Collect_Parameters = Collect_Parameters & "/log_enabled"
     End If
     
-    If ThisWorkbook.Names("SETTINGS_SESSION_TYPE").RefersToRange.Value <> vbNullString Then
-        Collect_Parameters = Collect_Parameters & "/type:" & ThisWorkbook.Names("SETTINGS_SESSION_TYPE").RefersToRange.Value
-    Else
-        Collect_Parameters = Collect_Parameters & "/type:R"
-    End If
+    'If ThisWorkbook.Names("SETTINGS_SESSION_TYPE").RefersToRange.Value <> vbNullString Then
+    '    Collect_Parameters = Collect_Parameters & "/type:" & ThisWorkbook.Names("SETTINGS_SESSION_TYPE").RefersToRange.Value
+    'Else
+    '    Collect_Parameters = Collect_Parameters & "/type:R"
+    'End If
         
     ' target path is mandatory parameter
     If Target_File = vbNullString Then

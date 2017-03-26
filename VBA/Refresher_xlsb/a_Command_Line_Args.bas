@@ -48,8 +48,8 @@ Sub ParseArgs(sCmdLine As String)
             ThisWorkbook.Names("SETTINGS_REPORT_ID").RefersToRange.Value = Trim(vTemp(1))
         ElseIf vTemp(0) = "log_enabled" Then
             ThisWorkbook.Names("SETTINGS_LOG_ENABLED").RefersToRange.Value = "Y"
-        ElseIf vTemp(0) = "type" Then
-            ThisWorkbook.Names("SETTINGS_SESSION_TYPE").RefersToRange.Value = Trim(vTemp(1))
+        'ElseIf vTemp(0) = "type" Then
+        '    ThisWorkbook.Names("SETTINGS_SESSION_TYPE").RefersToRange.Value = Trim(vTemp(1))
         ElseIf vTemp(0) = "target_path" Then
             ThisWorkbook.Names("SETTINGS_TARGET_PATH").RefersToRange.Value = Replace(vTemp(1), "|", "/") ' return '/'
         ElseIf vTemp(0) = "macro_before" Then

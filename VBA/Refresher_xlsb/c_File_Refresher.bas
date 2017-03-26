@@ -157,7 +157,10 @@ Sub Refresh_File_One_or_No_Scopes_Try(Optional Scope As String)
             ' wait 10 min
             Call Write_Log("Waiting for next try... " & CStr(Delay_Between_Tries) & " min", bMandatoryLogRecord)
             bGlobalError = False
-            Application.Wait (Now() + TimeValue("00:" & Right("0" & CStr(Delay_Between_Tries), 2) & ":00"))
+            
+            ' Application.Wait makes pressure on CPU
+            ' Application.Wait (Now() + TimeValue("00:" & Right("0" & CStr(Delay_Between_Tries), 2) & ":00"))
+            Call WaitSeconds(600)
         Else
             Call Write_Log("Refresh Successful", bMandatoryLogRecord)
             Exit Do

@@ -166,22 +166,25 @@ Function Save_Target_WB_as_New(Optional Scope As String) As Boolean
         On Error GoTo 0
     End If
     
+    
+    ' Change 2017-03-36
+    ' Remove backward support of T-ransfer Result worksheet
     ' if type = T (transfer data)
     ' then sheet Result should be saved as a new workbook
-    If ThisWorkbook.Names("SETTINGS_SESSION_TYPE").RefersToRange.Value = "T" Then
-        On Error Resume Next
-        target_wb.Sheets("Result").Activate
-        If Err.Number = 0 Then
-            target_wb.Sheets("Result").Copy
-            Set new_wb = ActiveWorkbook
-        Else
-            ' sheet not found
-            bGlobalError = True
-            Call Write_Log("Couldn't find sheet 'Result'")
-            Exit Function
-        End If
-        On Error GoTo 0
-    End If
+'    If ThisWorkbook.Names("SETTINGS_SESSION_TYPE").RefersToRange.Value = "T" Then
+'        On Error Resume Next
+'        target_wb.Sheets("Result").Activate
+'        If Err.Number = 0 Then
+'            target_wb.Sheets("Result").Copy
+'            Set new_wb = ActiveWorkbook
+'        Else
+'            ' sheet not found
+'            bGlobalError = True
+'            Call Write_Log("Couldn't find sheet 'Result'")
+'            Exit Function
+'        End If
+'        On Error GoTo 0
+'    End If
             
     ' SaveAs docu:
     ' https://msdn.microsoft.com/en-us/library/office/ff841185.aspx
