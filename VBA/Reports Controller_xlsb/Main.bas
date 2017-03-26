@@ -6,19 +6,22 @@ Sub Check_And_Run()
 
     Dim cell As Range
     Dim Field_Name As String
-    Dim objShell, objScriptEngine, objProc As Object
+    Dim objShell, objProc As Object
     Dim log_row As Long
     Dim StartTime As Double
     Dim arrScopes
     Dim i As Long
     
     Dim sh As Worksheet
+    
+    On Error Resume Next
     ' exit from Edit mode (user edit cell) - just in case
     Set sh = ThisWorkbook.ActiveSheet
-    Application.ScreenUpdating = False
+    'Application.ScreenUpdating = False
     ThisWorkbook.Sheets("LOG").Activate
     sh.Activate ' should force Excel to exit from edit mode
-    Application.ScreenUpdating = True
+    'Application.ScreenUpdating = True
+    On Error GoTo 0
     
     Call Set_Global_Variables
     Set objShell = CreateObject("WScript.Shell")
@@ -80,15 +83,7 @@ Sub Check_And_Run()
                 ' clear Status - as this code is executed only when we start new instance
                 Control_Table.Parent.Cells(cell.Row, _
                     Control_Table.ListColumns("Status").Range.Column).Value = "In Process: 0:00"
-                
-                ' Run Excel with switches /x /r /e
-                ' about switches https://support.microsoft.com/en-us/kb/291288
-                'Debug.Print objScriptEngine.Run("encodeURIComponent", Collect_Parameters(cell.Row))
-                
-                ' for some reason when place /r parameter as first - /e and rest is ignored
-                'Set objProc = objShell.Exec(Excel_Path & " /r """ & Refresher_Path & """ /x " & _
-                    "/e" & objScriptEngine.Run("encodeURIComponent", Collect_Parameters(cell.Row)))
-                
+                                                
                 ' therefore - /r is last parameter
                 ' order is important for Parsing macro in Refresher.xlsb !!!
                 
@@ -126,8 +121,8 @@ Next_Cell:
     
 Exit_sub:
     
+    ThisWorkbook.Save
     Set objShell = Nothing
-    Set objScriptEngine = Nothing
     
     Exit Sub
     
@@ -182,13 +177,13 @@ Function Collect_Parameters(report_row_id As Long, Optional Scope As String) As 
                 ' solves problem of web folder
     ' '|' cannot be used in path, so it will be replaced back in Refresher
     
-    Field_Name = "Type"
-        Collect_Parameters = Collect_Parameters & "/type:" & _
-            IIf(Control_Table.Parent.Cells(report_row_id, _
-                    Control_Table.ListColumns(Field_Name).Range.Column).Value = vbNullString, _
-                "R", _
-                Control_Table.Parent.Cells(report_row_id, _
-                    Control_Table.ListColumns(Field_Name).Range.Column).Value)
+'    Field_Name = "Type"
+'        Collect_Parameters = Collect_Parameters & "/type:" & _
+'            IIf(Control_Table.Parent.Cells(report_row_id, _
+'                    Control_Table.ListColumns(Field_Name).Range.Column).Value = vbNullString, _
+'                "R", _
+'                Control_Table.Parent.Cells(report_row_id, _
+'                    Control_Table.ListColumns(Field_Name).Range.Column).Value)
     
     Field_Name = "Macro Before"
     If Control_Table.Parent.Cells(report_row_id, _

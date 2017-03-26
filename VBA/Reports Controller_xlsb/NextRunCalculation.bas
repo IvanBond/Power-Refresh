@@ -18,6 +18,7 @@ Sub TestNextRun()
 End Sub
 
 Function Get_Next_Run_DateTime(report_row_id As Long) As Date
+    Dim i As Long
     ' simplest logic - next day in the same time (set in column 'Execution Time')
     
     If Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("Execution Time").Range.Column).Value = vbNullString Then
@@ -27,18 +28,33 @@ Function Get_Next_Run_DateTime(report_row_id As Long) As Date
     
     ' Dummy - next day, same time
     Get_Next_Run_DateTime = Round(Date + 1, 0) + Control_Table. _
-        Parent.Cells(report_row_id, Control_Table.ListColumns("Execution Time").Range.Column).Value               ' time
+        Parent.Cells(report_row_id, Control_Table.ListColumns("Execution Time").Range.Column).Value
     
     ' Default - Recur every X days
     If Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("Recur every X days").Range.Column).Value <> vbNullString Then
-        'Get_Next_Run_DateTime = Round(Now() + _
-            Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("Recur every X days").Range.Column).Value, _
-            0) + _
-            Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("Execution Time").Range.Column).Value ' time
+        ' if only on working days
+        If Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("Only Working Days").Range.Column).Value = "Y" Then
+            ' begin with Start Date
+            Get_Next_Run_DateTime = Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("Start Date").Range.Column).Value
             
-        Get_Next_Run_DateTime = GetClosestTime(Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("Start Date").Range.Column).Value _
-            + Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("Execution Time").Range.Column).Value, _
-            Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("Recur every X days").Range.Column).Value)
+            ' add X working days till reach closest datetime in future
+            Do While Get_Next_Run_DateTime < Now()
+                For i = 1 To Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("Recur every X days").Range.Column).Value
+                    Get_Next_Run_DateTime = GetNextWorkingDay(Get_Next_Run_DateTime, _
+                        Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("WD Country").Range.Column).Value) _
+                        
+                Next i
+            Loop
+            
+            ' add time
+            Get_Next_Run_DateTime = Get_Next_Run_DateTime + _
+                Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("Execution Time").Range.Column).Value
+        Else
+        ' just add X days
+            Get_Next_Run_DateTime = GetClosestTime(Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("Start Date").Range.Column).Value _
+                + Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("Execution Time").Range.Column).Value, _
+                Control_Table.Parent.Cells(report_row_id, Control_Table.ListColumns("Recur every X days").Range.Column).Value)
+        End If
     End If
     
     ' recur every X minutes
