@@ -14,22 +14,14 @@ Sub Check_And_Run()
     
     Dim sh As Worksheet
     
-    On Error Resume Next
-    ' exit from Edit mode (user edit cell) - just in case
-    Set sh = ThisWorkbook.ActiveSheet
-    'Application.ScreenUpdating = False
-    ThisWorkbook.Sheets("LOG").Activate
-    sh.Activate ' should force Excel to exit from edit mode
-    'Application.ScreenUpdating = True
-    On Error GoTo 0
+    ' skip cycle step if Application is in edit mode
+    If IsEditing Then
+        Debug.Print Now() & ": " & "Edit Mode detected, Skip cycle step"
+        GoTo Exit_sub
+    End If
     
     Call Set_Global_Variables
     Set objShell = CreateObject("WScript.Shell")
-    
-    If Control_Table.DataBodyRange Is Nothing Then
-        MsgBox "No reports for execution", vbExclamation + vbOKOnly, "Information"
-        Exit Sub
-    End If
     
     ' build parameters string
     ' loop through rows
@@ -41,14 +33,40 @@ Sub Check_And_Run()
             If CheckProcessExist(Get_Last_Log_Record(cell.Row, "Process ID")) Then
                 StartTime = Get_Last_Log_Record(cell.Row, "Start Time") ' get process start time
                 If StartTime <> -1 Then
-                    Control_Table.Parent.Cells(cell.Row, _
-                            Control_Table.ListColumns("Status").Range.Column).Value = "In Process: " & Format(Now() - StartTime, "hh:mm:ss")
+                    ' check if execution takes longer time than expected
+                    If Control_Table.Parent.Cells(cell.Row, _
+                                Control_Table.ListColumns("Time Limit").Range.Column).Value <> vbNullString Then
+                        If (Now() - StartTime) * 24 * 60 >= Control_Table.Parent.Cells(cell.Row, _
+                                Control_Table.ListColumns("Time Limit").Range.Column).Value Then
+                            ' kill process with its childred
+                            ' Time Limit must include total time of execution of all possible dependend tasks
+                            Call KillProcessWithChildren(Get_Last_Log_Record(cell.Row, "Process ID"))
+                            ' TODO: send Email about fail
+                            
+                            Call Send_Email_Outlook("Report '" & cell.Value & "' - TIME EXCEEDED", [SETTINGS_EMAIL_ERRORS_TO].Value, _
+                                IIf([SETTINGS_EMAIL_IMPORTANCE].Value <> vbNullString, [SETTINGS_EMAIL_IMPORTANCE].Value, "Normal"), _
+                                IIf([SETTINGS_EMAIL_ATTACH_LOGFILE].Value = "Y", ThisWorkbook.path & "\Logs\" & cell.Value & ".log", vbNullString))
+                            
+                            If Not IsEditing Then
+                                Control_Table.Parent.Cells(cell.Row, _
+                                        Control_Table.ListColumns("Status").Range.Column).Value = "TERMINATED"
+                            End If
+                        End If
+                    Else
+                    
+                        If Not IsEditing Then
+                            Control_Table.Parent.Cells(cell.Row, _
+                                    Control_Table.ListColumns("Status").Range.Column).Value = "In Process: " & Format(Now() - StartTime, "hh:mm:ss")
+                        End If
+                    End If
                 End If
             Else
             ' if process doesn't exist anymore
-                Control_Table.Parent.Cells(cell.Row, Control_Table.ListColumns("Status").Range.Column).Value = Replace( _
-                    Control_Table.Parent.Cells(cell.Row, Control_Table.ListColumns("Status").Range.Column).Value, _
-                    "In Process", "Completed", compare:=vbTextCompare) & "+"
+                If Not IsEditing Then
+                    Control_Table.Parent.Cells(cell.Row, Control_Table.ListColumns("Status").Range.Column).Value = Replace( _
+                        Control_Table.Parent.Cells(cell.Row, Control_Table.ListColumns("Status").Range.Column).Value, _
+                        "In Process", "Completed", compare:=vbTextCompare) & "+"
+                End If
             End If
         End If
         
@@ -61,29 +79,32 @@ Sub Check_And_Run()
             
             ' just in case check row validity
             If Is_Row_Valid(cell.Row) Then
-                
-                Control_Table.Parent.Cells(cell.Row, Control_Table.ListColumns("Last Run").Range.Column).Value = Now()
-                
+                If Not IsEditing Then
+                    Control_Table.Parent.Cells(cell.Row, Control_Table.ListColumns("Last Run").Range.Column).Value = Now()
+                End If
                 ' if we run task that is planned on e.g. next week via putting Manual Trigger - we do not need to re-calc Next Run
                 ' in other words, we re-calc next run only then Next Run < Now()
                 
                 If Control_Table.Parent.Cells(cell.Row, Control_Table.ListColumns("Next Run").Range.Column).Value < Now() Then
-                    ' Calculate Next Run
-                     Control_Table.Parent.Cells(cell.Row, _
-                        Control_Table.ListColumns("Next Run").Range.Column).Value = Get_Next_Run_DateTime(cell.Row)
-                     
+                    If Not IsEditing Then
+                        ' Calculate Next Run
+                         Control_Table.Parent.Cells(cell.Row, _
+                            Control_Table.ListColumns("Next Run").Range.Column).Value = Get_Next_Run_DateTime(cell.Row)
+                    End If
                      ' Debug.Print Get_Next_Run_DateTime(cell.Row)
                      
                 End If
-
-                ' remove manual trigger - every time
-                Control_Table.Parent.Cells(cell.Row, _
-                 Control_Table.ListColumns("Manual Trigger").Range.Column).Value = vbNullString
-
-                ' clear Status - as this code is executed only when we start new instance
-                Control_Table.Parent.Cells(cell.Row, _
-                    Control_Table.ListColumns("Status").Range.Column).Value = "In Process: 0:00"
-                                                
+                
+                If Not IsEditing Then
+                    ' remove manual trigger - every time
+                    Control_Table.Parent.Cells(cell.Row, _
+                        Control_Table.ListColumns("Manual Trigger").Range.Column).Value = vbNullString
+    
+                    ' clear Status - as this code is executed only when we start new instance
+                    Control_Table.Parent.Cells(cell.Row, _
+                        Control_Table.ListColumns("Status").Range.Column).Value = "In Process: 0:00"
+                End If
+                
                 ' therefore - /r is last parameter
                 ' order is important for Parsing macro in Refresher.xlsb !!!
                 
@@ -105,9 +126,11 @@ Sub Check_And_Run()
                 ' C:\Users\<username>\AppData\Roaming\Microsoft\Excel\XLSTART
                 Application.Wait Now() + TimeValue("00:00:03")
                 
-                ' populate log table
-                Call Write_Log(cell.Row, objProc.ProcessID)
-
+                ' write to LOG table
+                If Not IsEditing Then
+                    Call Write_Log(cell.Row, objProc.ProcessID)
+                End If
+                
                 Set objProc = Nothing
             Else
                 ' row is not valid - function Is_Row_Valid put necessary comment to Status field
@@ -120,14 +143,16 @@ Next_Cell:
     Next cell
     
 Exit_sub:
-    
+    On Error Resume Next
     ThisWorkbook.Save
     Set objShell = Nothing
-    
+    Application.Interactive = True
+    Application.ScreenUpdating = True
     Exit Sub
     
 ErrHandler:
-    Debug.Print Err.Number & Err.Description
+    Debug.Print Now() & ": " & "Check And Run: " & Err.Number & ": " & Err.Description
+    Err.Clear
     GoTo Exit_sub
     Resume
 End Sub
@@ -205,14 +230,14 @@ Function Collect_Parameters(report_row_id As Long, Optional Scope As String) As 
             Control_Table.ListColumns(Field_Name).Range.Column).Value
     End If
     
-    Field_Name = "Error Email"
+    Field_Name = "Error Email To"
     If Control_Table.Parent.Cells(report_row_id, _
         Control_Table.ListColumns(Field_Name).Range.Column).Value <> vbNullString Then
         Collect_Parameters = Collect_Parameters & "/error_email_to:" & Control_Table.Parent.Cells(report_row_id, _
             Control_Table.ListColumns(Field_Name).Range.Column).Value
     End If
     
-    Field_Name = "Success Email"
+    Field_Name = "Success Email To"
     If Control_Table.Parent.Cells(report_row_id, _
         Control_Table.ListColumns(Field_Name).Range.Column).Value <> vbNullString Then
         Collect_Parameters = Collect_Parameters & "/success_email_to:" & Control_Table.Parent.Cells(report_row_id, _

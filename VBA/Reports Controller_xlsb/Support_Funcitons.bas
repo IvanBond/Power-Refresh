@@ -33,3 +33,23 @@ Public Function URLEncode( _
   End If
 End Function
 
+Function IsEditing() As Boolean
+' checks if Excel is in Edit cell mode
+    On Error GoTo ErrHandler
+    If Application.Interactive = True Then
+        On Error Resume Next
+        Application.Interactive = False
+        Application.Interactive = True
+        If Err.Number <> 0 Then
+            IsEditing = True
+            Err.Clear
+        End If
+    Else
+        ' false
+    End If
+ErrHandler:
+    If Err.Number <> 0 Then
+        Debug.Print Now() & ": IsEditing: " & Err.Number & ": " & Err.Description
+        Err.Clear
+    End If
+End Function
