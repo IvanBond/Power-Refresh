@@ -43,6 +43,7 @@ Private Sub Workbook_Open()
             Right(ThisWorkbook.Names("SETTINGS_TARGET_PATH").RefersToRange.Value, 1) = "/" Then
         Call Refresh_Folder
     Else
+        'Stop
         Call Refresh_File
     End If
 

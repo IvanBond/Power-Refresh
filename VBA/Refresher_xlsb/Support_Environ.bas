@@ -9,7 +9,7 @@ Option Explicit
 
 Sub GetCurrentProcess()
     Dim objWMIService, colProcess, process
-    
+    On Error GoTo ErrHandler
     Set objWMIService = GetObject("winmgmts:" _
         & "{impersonationLevel=impersonate}!\\.\root\cimv2")
     
@@ -21,7 +21,8 @@ Sub GetCurrentProcess()
     For Each process In colProcess
         Set CurrentProcess = process
     Next
-    
+
+ErrHandler:
     Set process = Nothing
     Set colProcess = Nothing
     Set objWMIService = Nothing
@@ -48,7 +49,7 @@ End Sub
 
 Function CheckProcessExist(ProcessID)
     Dim objWMIService, colProcess
-    
+    On Error GoTo ErrHandler
     Set objWMIService = GetObject("winmgmts:" _
         & "{impersonationLevel=impersonate}!\\.\root\cimv2")
     
@@ -60,6 +61,7 @@ Function CheckProcessExist(ProcessID)
         CheckProcessExist = colProcess.count
     End If
     
+ErrHandler:
     Set colProcess = Nothing
     Set objWMIService = Nothing
 End Function

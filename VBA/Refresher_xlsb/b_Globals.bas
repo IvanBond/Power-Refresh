@@ -87,11 +87,11 @@ Function Check_Main_Parameters() As Boolean
     ' check conflicts between parameters
     
     ' if SCOPE is provided and Save Inplace = Y
-    If ThisWorkbook.Names("SETTINGS_SAVE_INPLACE").RefersToRange.Value = "Y" And _
-            ThisWorkbook.Names("SETTINGS_SCOPES").RefersToRange.Value <> vbNullString Then
-        Call Write_Log("Error. Refresh for SCOPES cannot be done with 'Save InPlace' = 'Y' ", True)
-        GoTo ErrHandler
-    End If
+'    If ThisWorkbook.Names("SETTINGS_SAVE_INPLACE").RefersToRange.Value = "Y" And _
+'            ThisWorkbook.Names("SETTINGS_SCOPES").RefersToRange.Value <> vbNullString Then
+'        Call Write_Log("Error. Refresh for SCOPES cannot be done with 'Save InPlace' = 'Y' ", True)
+'        GoTo ErrHandler
+'    End If
     
     ' if format CSV but sheetname is empty
     If ThisWorkbook.Names("SETTINGS_RESULT_FILE_EXTENSION").RefersToRange.Value = "CSV" And _

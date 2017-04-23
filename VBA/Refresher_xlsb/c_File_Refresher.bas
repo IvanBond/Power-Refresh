@@ -277,7 +277,7 @@ Sub Refresh_File_One_or_No_Scopes(Optional Scope As String)
             If Not Save_Target_WB_as_New(Scope) Then GoTo Exit_Sub
         End If
     Else
-        Call Write_Log("Do_Not_Save option is true")
+        Call Write_Log("Do_Not_Save option is enabled")
     End If
     
 Exit_Sub:

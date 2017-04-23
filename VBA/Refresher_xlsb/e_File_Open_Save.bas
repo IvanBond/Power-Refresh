@@ -117,6 +117,8 @@ Function Save_Target_WB_as_New(Optional Scope As String) As Boolean
     ' include Scope
     result_filename = result_filename & IIf(Scope <> vbNullString, " " & Scope, vbNullString)
     
+    ' get Extension
+    Call Get_Resulting_Extension
     
     If ThisWorkbook.Names("SETTINGS_ADD_DATETIME").RefersToRange.Value = "Y" Then
         result_filename = result_filename & " " & Format(Now(), "yyyy-MM-dd hhmmss")
@@ -126,8 +128,10 @@ Function Save_Target_WB_as_New(Optional Scope As String) As Boolean
         ' Reason: as target file was opened in ReadOnly mode - we need a new name
         ' check if
         ' no new folder provided and no new name or
-        ' עש new folder but new filename with same name
+        ' no new folder but new filename with same name
         ' new folder is the same and new filename is the same
+        ' in other words: if same folder, same extension - we cannot re-write target file
+        ' it is possible if only "Save Inplace" parameter is passed - then another procedure is called: Save_Target_WB_Inplace
         If Scope = vbNullString And Resulting_Extension = Right(target_wb.Name, Len(Resulting_Extension)) Then
             If (ThisWorkbook.Names("SETTINGS_RESULT_FOLDER_PATH").RefersToRange.Value = vbNullString And _
                         ThisWorkbook.Names("SETTINGS_RESULT_FILENAME").RefersToRange.Value = vbNullString) Or _
@@ -140,8 +144,6 @@ Function Save_Target_WB_as_New(Optional Scope As String) As Boolean
         End If
         
     End If
-    
-    Call Get_Resulting_Extension
         
     Set new_wb = target_wb
     
@@ -167,7 +169,7 @@ Function Save_Target_WB_as_New(Optional Scope As String) As Boolean
     End If
     
     
-    ' Change 2017-03-36
+    ' Change 2017-03-26
     ' Remove backward support of T-ransfer Result worksheet
     ' if type = T (transfer data)
     ' then sheet Result should be saved as a new workbook
