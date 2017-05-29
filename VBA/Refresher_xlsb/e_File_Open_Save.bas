@@ -19,6 +19,19 @@ Function Open_Target_File() As Boolean
     Set target_wb = Application.Workbooks.Open(Filename:=ThisWorkbook.Names("SETTINGS_TARGET_PATH").RefersToRange.Value, _
         UpdateLinks:=True, ReadOnly:=bReadOnly, IgnoreReadOnlyRecommended:=True, AddToMru:=False)
     
+    ' for some reason, ReadOnly:=false doesn't work for files on SharePoint
+    ' by default Excel 2016 opens files in read-only mode
+    ' therefore, to be able to save them in place, we have to turn on "Edit Workbook" mode.
+    
+    On Error Resume Next
+    If [SETTINGS_SAVE_INPLACE].Value <> vbNullString Then
+        If Left([SETTINGS_TARGET_PATH].Value, 4) = "http" Then
+            target_wb.LockServerFile
+        End If
+    End If
+    Err.Clear
+    On Error GoTo ErrHandler
+    
     Application.Visible = (ThisWorkbook.Names("SETTINGS_DEBUG_MODE").RefersToRange.Value = "Y")
     
     target_wb.EnableAutoRecover = False

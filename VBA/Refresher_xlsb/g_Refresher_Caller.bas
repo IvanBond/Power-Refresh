@@ -271,7 +271,7 @@ Function Collect_Parameters(Optional Scope As String, Optional Target_File As St
         Collect_Parameters = Collect_Parameters & "/save_sheet:" & ThisWorkbook.Names("SETTINGS_RESULT_SHEET_NAME").RefersToRange.Value
     End If
     
-    Debug.Print Collect_Parameters
+'    Debug.Print Collect_Parameters
     
 End Function
 

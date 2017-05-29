@@ -50,7 +50,7 @@ Public Sub ExportVisualBasicCode()
             Call MsgBox("Failed to export " & VBComponent.Name & " to " & path, vbCritical)
         Else
             count = count + 1
-            Debug.Print "Exported " & Left$(VBComponent.Name & ":" & Space(Padding), Padding) & path
+'            Debug.Print "Exported " & Left$(VBComponent.Name & ":" & Space(Padding), Padding) & path
         End If
 
         On Error GoTo 0

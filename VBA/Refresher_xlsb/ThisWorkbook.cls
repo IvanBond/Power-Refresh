@@ -12,6 +12,7 @@ Option Explicit
 Private Sub Workbook_Open()
     Dim str As String
     
+    [START_TIME].Value = Now
     Call GetCurrentProcess
     
     ThisWorkbook.Names("SETTINGS_PROCESS_ID").RefersToRange.Value = CurrentProcess.ProcessID
