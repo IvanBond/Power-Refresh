@@ -1,5 +1,6 @@
 Attribute VB_Name = "c_File_Refresher"
 Option Explicit
+Option Compare Text
 
 Function Refresh_File() As Boolean
     ' general procedure that handles refreshing of target file
@@ -16,6 +17,11 @@ Function Refresh_File() As Boolean
     ' ALL is a keyword here
     ' if ALL - scan specific table for Scopes
     If ThisWorkbook.Names("SETTINGS_SCOPES").RefersToRange.Value = "ALL" Then
+        
+        If ThisWorkbook.Names("SETTINGS_STOP_BEFORE_OPEN_WB").RefersToRange.Value = "Y" Then
+            Stop ' debugging
+        End If
+        
         ' open target file and scan for scopes
         If Not Open_Target_File Then GoTo ErrHandler
                 
@@ -27,6 +33,7 @@ Function Refresh_File() As Boolean
         ' all excluded scopes
         
         If ScopesDictionary.count > 1 Then
+            ' multiple scopes
             Call Refresh_File_For_Set_Of_Scopes
         ElseIf ScopesDictionary.count = 1 Then
             ' only one scope
@@ -37,6 +44,7 @@ Function Refresh_File() As Boolean
             
             ' TODO - decide if it is an error case
             ' Scope 'ALL' was provided but nothing found
+            ' write warning message to Log file
         End If
         
     ElseIf ThisWorkbook.Names("SETTINGS_SCOPES").RefersToRange.Value <> vbNullString Then
@@ -99,8 +107,7 @@ Sub Refresh_File_For_Set_Of_Scopes()
         ' until time_limit or processes are completed
         
         Do While 1 = 1
-            Application.Wait (Now() + TimeValue("00:00:10")) ' 10 seconds
-            'DoEvents ' ?
+            WaitSeconds 10
             
             ' we skip 0-element when populate array
             For i = LBound(arrChild_Processes, 2) + 1 To UBound(arrChild_Processes, 2)
@@ -138,6 +145,9 @@ Sub Refresh_File_For_Set_Of_Scopes()
 End Sub
 
 Sub Refresh_File_One_or_No_Scopes_Try(Optional Scope As String)
+' Sub executes Refresh_File_One_or_No_Scopes
+' if bGlobalError is true after refresh attempt macro will wait for next try
+
     Refresh_Try = 1
     
     Do While Refresh_Try <= Refresh_Tries_Qty
@@ -157,9 +167,7 @@ Sub Refresh_File_One_or_No_Scopes_Try(Optional Scope As String)
             ' wait 10 min
             Call Write_Log("Waiting for next try... " & CStr(Delay_Between_Tries) & " min", bMandatoryLogRecord)
             bGlobalError = False
-            
-            ' Application.Wait makes pressure on CPU
-            ' Application.Wait (Now() + TimeValue("00:" & Right("0" & CStr(Delay_Between_Tries), 2) & ":00"))
+                        
             Call WaitSeconds(600)
         Else
             Call Write_Log("Refresh Successful", bMandatoryLogRecord)
@@ -179,6 +187,10 @@ Sub Refresh_File_One_or_No_Scopes(Optional Scope As String)
     ' difference is only in set SCOPE cell or not in the beginning
     
     Dim BeforeAction
+    
+    If ThisWorkbook.Names("SETTINGS_STOP_BEFORE_OPEN_WB").RefersToRange.Value = "Y" Then
+        Stop ' debugging
+    End If
     
     If Not Open_Target_File Then GoTo ErrHandler
 
@@ -209,6 +221,11 @@ Sub Refresh_File_One_or_No_Scopes(Optional Scope As String)
     Application.Calculate
     
     If ThisWorkbook.Names("SETTINGS_MACRO_BEFORE").RefersToRange.Value <> vbNullString Then
+    
+        If ThisWorkbook.Names("SETTINGS_STOP_ON_MACRO_BEFORE").RefersToRange.Value = "Y" Then
+            Stop ' for debugging
+        End If
+        
         BeforeAction = Now()
         Call Write_Log("Calling macro " & ThisWorkbook.Names("SETTINGS_MACRO_BEFORE").RefersToRange.Value)
         On Error Resume Next
@@ -232,9 +249,15 @@ Sub Refresh_File_One_or_No_Scopes(Optional Scope As String)
         
     ' if do not skip RefreshAll
     If ThisWorkbook.Names("SETTINGS_SKIP_REFRESH_ALL").RefersToRange.Value <> "Y" Then
+                
+        If ThisWorkbook.Names("SETTINGS_STOP_BEFORE_REFRESH_ALL").RefersToRange.Value = "Y" Then
+            Stop ' for debugging
+        End If
+        
         BeforeAction = Now()
         Call Write_Log("Starting RefreshAll")
-        If Not UpdateConnections Then
+        'If Not UpdateConnections Then
+        If Not RefreshWorkbook Then
             ' error during refresh all
             Call Write_Log("Unexpected error during RefreshAll", True)
             GoTo ErrHandler
@@ -244,7 +267,16 @@ Sub Refresh_File_One_or_No_Scopes(Optional Scope As String)
         Call Write_Log("Skipping RefreshAll")
     End If
     
+    If ThisWorkbook.Names("SETTINGS_STOP_AFTER_REFRESH_ALL").RefersToRange.Value = "Y" Then
+        Stop ' for debugging
+    End If
+        
     If ThisWorkbook.Names("SETTINGS_MACRO_AFTER").RefersToRange.Value <> vbNullString Then
+        
+        If ThisWorkbook.Names("SETTINGS_STOP_ON_MACRO_AFTER").RefersToRange.Value = "Y" Then
+            Stop ' for debugging
+        End If
+        
         BeforeAction = Now()
         Call Write_Log("Calling macro " & ThisWorkbook.Names("SETTINGS_MACRO_AFTER").RefersToRange.Value)
         On Error Resume Next

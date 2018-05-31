@@ -1,5 +1,7 @@
 Attribute VB_Name = "Support_Email"
 Option Explicit
+Option Compare Text
+
 
 Sub Send_Mail(bSuccess As Boolean, Msg_Text As String, Optional Scope As String)
     Dim oMyMail, iConf, Flds, szServer

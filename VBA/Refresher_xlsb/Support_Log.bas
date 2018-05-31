@@ -1,5 +1,6 @@
 Attribute VB_Name = "Support_Log"
 Option Explicit
+Option Compare Text
 
 Sub Write_Log(str As String, Optional Mandatory_Record As Boolean, Optional Child_ProcessID As Long)
     Dim LogFile As String

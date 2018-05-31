@@ -1,5 +1,7 @@
 Attribute VB_Name = "a_Command_Line_Args"
 Option Explicit
+Option Compare Text
+
 
 Sub ParseArgs(sCmdLine As String)
     'Pulls the command line arguments/parameters and returns them as an array.
@@ -22,7 +24,7 @@ Sub ParseArgs(sCmdLine As String)
     sArgs = decodeURL(Mid(sCmdLine, iStart + 6, iEnd - iStart - 6))
     
     If Len(sArgs) = 0 Then Exit Sub       'No command line parameters were given
-            
+    
     ' all '/' chars have to be replaced before pass to command line
     ' it helps to simplify 'split' process
     'Loop thru the arguments and fill array.
@@ -48,8 +50,7 @@ Sub ParseArgs(sCmdLine As String)
             ThisWorkbook.Names("SETTINGS_REPORT_ID").RefersToRange.Value = Trim(vTemp(1))
         ElseIf vTemp(0) = "log_enabled" Then
             ThisWorkbook.Names("SETTINGS_LOG_ENABLED").RefersToRange.Value = "Y"
-        'ElseIf vTemp(0) = "type" Then
-        '    ThisWorkbook.Names("SETTINGS_SESSION_TYPE").RefersToRange.Value = Trim(vTemp(1))
+        
         ElseIf vTemp(0) = "target_path" Then
             ThisWorkbook.Names("SETTINGS_TARGET_PATH").RefersToRange.Value = Replace(vTemp(1), "|", "/") ' return '/'
         ElseIf vTemp(0) = "macro_before" Then
@@ -86,6 +87,32 @@ Sub ParseArgs(sCmdLine As String)
             ThisWorkbook.Names("SETTINGS_SCOPES_IN_PARALLEL").RefersToRange.Value = "Y"
         ElseIf vTemp(0) = "save_sheet" Then
             ThisWorkbook.Names("SETTINGS_RESULT_SHEET_NAME").RefersToRange.Value = vTemp(1)
+        
+        ElseIf vTemp(0) = "save_sheets" Then
+            ThisWorkbook.Names("SETTINGS_SAVE_SHEETS").RefersToRange.Value = vTemp(1)
+        ElseIf vTemp(0) = "delete_sheets" Then
+            ThisWorkbook.Names("SETTINGS_DELETE_SHEETS").RefersToRange.Value = vTemp(1)
+        ElseIf vTemp(0) = "formulas_to_values" Then
+            ThisWorkbook.Names("SETTINGS_FORMULAS_TO_VALUES").RefersToRange.Value = vTemp(1)
+        ElseIf vTemp(0) = "delete_wb_queries" Then
+            ThisWorkbook.Names("SETTINGS_DELETE_WB_QUERIES").RefersToRange.Value = vTemp(1)
+        ElseIf vTemp(0) = "err_email_to" Then
+            ThisWorkbook.Names("SETTINGS_ERROR_EMAIL_TO").RefersToRange.Value = vTemp(1)
+        ElseIf vTemp(0) = "succ_email_to" Then
+            ThisWorkbook.Names("SETTINGS_SUCCESS_EMAIL_TO").RefersToRange.Value = vTemp(1)
+        
+        ElseIf vTemp(0) = "stop_before_open_wb" Then
+            ThisWorkbook.Names("SETTINGS_STOP_BEFORE_OPEN_WB").RefersToRange.Value = vTemp(1)
+        ElseIf vTemp(0) = "stop_on_macro_before" Then
+            ThisWorkbook.Names("SETTINGS_STOP_ON_MACRO_BEFORE").RefersToRange.Value = vTemp(1)
+        ElseIf vTemp(0) = "stop_before_refresh_all" Then
+            ThisWorkbook.Names("SETTINGS_STOP_BEFORE_REFRESH_ALL").RefersToRange.Value = vTemp(1)
+        ElseIf vTemp(0) = "stop_after_refresh_all" Then
+            ThisWorkbook.Names("SETTINGS_STOP_AFTER_REFRESH_ALL").RefersToRange.Value = vTemp(1)
+        ElseIf vTemp(0) = "stop_on_macro_after" Then
+            ThisWorkbook.Names("SETTINGS_STOP_ON_MACRO_AFTER").RefersToRange.Value = vTemp(1)
+                                
+            
         End If
     Next x
     

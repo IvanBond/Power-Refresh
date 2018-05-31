@@ -1,0 +1,12 @@
+%USERPROFILE%
+%USERPROFILE%\Cookies
+%USERPROFILE%\Recent
+%USERPROFILE%\AppData\Local\Temp\
+%USERPROFILE%\AppData\Local\Microsoft\Windows\Temporary Internet Files\Content.MSO
+%USERPROFILE%\AppData\Local\Microsoft\Windows\INetCache\Content.MSO
+	
+%APPDATA%
+%APPDATA%\Microsoft\Windows\Cookies
+%APPDATA%\Microsoft\Windows\Recent\
+%APPDATA%\Microsoft\Windows\Recent Items\
+%APPDATA%\Microsoft\Office\Recent\

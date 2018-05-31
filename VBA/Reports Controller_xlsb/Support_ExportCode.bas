@@ -1,5 +1,6 @@
 Attribute VB_Name = "Support_ExportCode"
 Option Explicit
+Option Compare Text
 '
 ' Original code taken from
 ' https://gist.github.com/steve-jansen/7589478
@@ -23,7 +24,7 @@ Public Sub ExportVisualBasicCode()
     directory = ActiveWorkbook.path & "\VBA\" & Replace(ActiveWorkbook.Name, ".", "_")
     count = 0
     
-    If Not fso.FolderExists(directory) Then
+    If Not fso.folderexists(directory) Then
         Call fso.CreateFolder(directory)
     End If
     Set fso = Nothing

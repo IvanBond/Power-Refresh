@@ -1,5 +1,6 @@
 Attribute VB_Name = "Support_Environ"
 Option Explicit
+Option Compare Text
 
 #If VBA7 Then
     Private Declare PtrSafe Function GetCurrentProcessId Lib "kernel32" () As LongPtr

@@ -1,10 +1,12 @@
 Attribute VB_Name = "e_File_Open_Save"
 Option Explicit
+Option Compare Text
 
 Function Open_Target_File() As Boolean
     Dim bReadOnly As Boolean
     On Error GoTo ErrHandler
     Dim BeforeAction
+    
     BeforeAction = Now()
     Call Write_Log("Opening workbook... " & IIf(Left(ThisWorkbook.Names("SETTINGS_TARGET_PATH").RefersToRange.Value, 4) = "http", _
         Replace(ThisWorkbook.Names("SETTINGS_TARGET_PATH").RefersToRange.Value, " ", "%20"), _
@@ -24,8 +26,8 @@ Function Open_Target_File() As Boolean
     ' therefore, to be able to save them in place, we have to turn on "Edit Workbook" mode.
     
     On Error Resume Next
-    If [SETTINGS_SAVE_INPLACE].Value <> vbNullString Then
-        If Left([SETTINGS_TARGET_PATH].Value, 4) = "http" Then
+    If ThisWorkbook.Names("SETTINGS_SAVE_INPLACE").RefersToRange.Value <> vbNullString Then
+        If Left(ThisWorkbook.Names("SETTINGS_TARGET_PATH").RefersToRange.Value, 4) = "http" Then
             target_wb.LockServerFile
         End If
     End If
@@ -61,7 +63,7 @@ Sub Get_Scopes()
     
     For Each sh In target_wb.Sheets
         For Each lo In sh.ListObjects
-        If lo.Name = CONTROL_TABLE_NAME Then
+        If (lo.Name = CONTROL_TABLE_NAME) Or (lo.Name = CONTROL_TABLE_NAME2) Then
             On Error Resume Next
             ' check if column exists
             Debug.Print lo.ListColumns("Scope").Name
@@ -83,6 +85,11 @@ Sub Get_Scopes()
 End Sub
 
 Function Save_Target_WB_Inplace() As Boolean
+    ' method ignores parameters
+    ' Save Sheets
+    ' Delete Sheets
+    ' Formulas to Values
+    ' Delete WB Queries
     
     Call Write_Log("Saving as " & target_wb.FullName)
         
@@ -182,25 +189,6 @@ Function Save_Target_WB_as_New(Optional Scope As String) As Boolean
     End If
     
     
-    ' Change 2017-03-26
-    ' Remove backward support of T-ransfer Result worksheet
-    ' if type = T (transfer data)
-    ' then sheet Result should be saved as a new workbook
-'    If ThisWorkbook.Names("SETTINGS_SESSION_TYPE").RefersToRange.Value = "T" Then
-'        On Error Resume Next
-'        target_wb.Sheets("Result").Activate
-'        If Err.Number = 0 Then
-'            target_wb.Sheets("Result").Copy
-'            Set new_wb = ActiveWorkbook
-'        Else
-'            ' sheet not found
-'            bGlobalError = True
-'            Call Write_Log("Couldn't find sheet 'Result'")
-'            Exit Function
-'        End If
-'        On Error GoTo 0
-'    End If
-            
     ' SaveAs docu:
     ' https://msdn.microsoft.com/en-us/library/office/ff841185.aspx
         
@@ -245,3 +233,26 @@ ErrHandler:
     On Error GoTo 0
     Call Write_Log("Unexpected error: " & Err.Number & ": " & Err.Description, True)
 End Function
+
+Private Sub DeleteQueriesAndConnections(target_wb As Workbook)
+    
+    On Error Resume Next
+    Application.Cursor = xlWait
+    Application.DisplayAlerts = False
+    Application.ScreenUpdating = False
+    Do While target_wb.Queries.count > 0
+        target_wb.Queries(1).Delete
+    Loop
+    
+    Do While target_wb.Connections.count > 0
+        If target_wb.Connections(1).Name <> "ThisWorkbookDataModel" Then
+            target_wb.Connections(1).Delete
+        Else
+            If target_wb.Connections.count = 1 Then Exit Do
+            target_wb.Connections(2).Delete
+        End If
+    Loop
+    
+    Err.Clear
+End Sub
+

@@ -1,5 +1,7 @@
 Attribute VB_Name = "Support_ExportCode"
 Option Explicit
+Option Compare Text
+
 '
 ' Original code taken from
 ' https://gist.github.com/steve-jansen/7589478

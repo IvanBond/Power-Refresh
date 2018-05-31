@@ -1,5 +1,6 @@
 Attribute VB_Name = "d_Folder_Refresher"
 Option Explicit
+Option Compare Text
 
 Sub Refresh_Folder()
     ' TODO - write this Sub

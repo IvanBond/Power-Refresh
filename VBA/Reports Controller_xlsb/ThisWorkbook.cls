@@ -12,5 +12,11 @@ Option Explicit
 Private Sub Workbook_Open()
     ' TODO: check if something still In Process - change to n/a
     ' or scan logs folder
+    
+    With ThisWorkbook.Sheets("ControlPanel").Shapes("StartStop Button")
+        .Visible = True
+        .TextFrame2.TextRange.Characters.Text = "Start Processing"
+        .Fill.ForeColor.RGB = RGB(0, 176, 80) ' Green
+    End With
+    
 End Sub
-

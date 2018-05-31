@@ -1,5 +1,6 @@
 Attribute VB_Name = "Timer"
 Option Explicit
+Option Compare Text
 
 Public Const timerSeconds As Single = 60 ' seconds
 
@@ -93,7 +94,10 @@ Sub Test()
             .TextFrame2.TextRange.Characters.Text = "Stop Processing"
             .Fill.ForeColor.RGB = RGB(209, 0, 36) ' Red
             
-            Call Set_Global_Variables
+            If Control_Table Is Nothing Then
+                Call Set_Global_Variables
+            End If
+            
             If Control_Table.DataBodyRange Is Nothing Then
                 MsgBox "No reports for execution", vbExclamation + vbOKOnly, "Information"
                 Exit Sub

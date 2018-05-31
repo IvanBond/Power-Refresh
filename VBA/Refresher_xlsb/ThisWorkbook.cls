@@ -8,11 +8,14 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Option Explicit
+Option Compare Text
 
 Private Sub Workbook_Open()
     Dim str As String
     
-    [START_TIME].Value = Now
+    'Stop
+    
+    ThisWorkbook.Names("START_TIME").RefersToRange.Value = Now
     Call GetCurrentProcess
     
     ThisWorkbook.Names("SETTINGS_PROCESS_ID").RefersToRange.Value = CurrentProcess.ProcessID
@@ -36,7 +39,7 @@ Private Sub Workbook_Open()
     End If
     
     Call ParseArgs(str) ' get command line parameters to named ranges
-        
+    
     If Not Set_Global_Settings Then GoTo ErrHandler
     If Not Check_Main_Parameters Then GoTo ErrHandler
     

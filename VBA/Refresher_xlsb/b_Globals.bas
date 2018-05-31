@@ -1,5 +1,6 @@
 Attribute VB_Name = "b_Globals"
 Option Explicit
+Option Compare Text
 
 #If VBA7 Then
     Public Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal lngMilliSeconds As Long)
@@ -23,6 +24,7 @@ Public Const DEFAULT_Transfer_FolderName = "Updated" ' in Refresher folder
 
 ' R-eport constants
 Public Const CONTROL_TABLE_NAME = "ControlTable" ' table with list of Scopes
+Public Const CONTROL_TABLE_NAME2 = "ScopeMaster" ' table with list of Scopes
 Public Const bMandatoryLogRecord = True
 
 Public objFSO, objLog

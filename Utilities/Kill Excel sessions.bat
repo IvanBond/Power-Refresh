@@ -1,0 +1,1 @@
+taskkill /im excel.exe -f

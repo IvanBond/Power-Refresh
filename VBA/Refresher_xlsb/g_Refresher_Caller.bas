@@ -81,9 +81,9 @@ Sub Refresher_Caller(Optional Scope As String, Optional Target_File As String)
         ' wait until process is finished
 
         On Error GoTo ErrHandler
+        
         Do While objProc.Status = 0 ' Running
-            Application.Wait (Now() + TimeValue("00:00:10")) ' 10 seconds
-            ' Support_Functions.WaitSeconds ?
+            WaitSeconds 10
             
             ' Process handles errors during execution itself
             
@@ -93,7 +93,7 @@ Sub Refresher_Caller(Optional Scope As String, Optional Target_File As String)
                 ' TOThnk: check log of target child process
                 ' if process had record 'waiting for new try' (since BeforeAction time)
                 ' extent wait limit on [count of 'waits of new try'] * [waiting time]
-                ' low prio - just use initially large Time Limit
+                ' low prio - just ask user to set large Time Limit
                 If InStr(Get_Log_Last_Record(CStr(ProcessID)), "Waiting") > 0 Then
                     If Scope <> vbNullString Then
                         Time_Limit_Per_Scope = Time_Limit_Per_Scope + Delay_Between_Tries
@@ -113,25 +113,26 @@ Sub Refresher_Caller(Optional Scope As String, Optional Target_File As String)
                     ' do not raise error - continue with rest of files / scopes
                     ' if it was file with set of scopes - we also should terminate its children processes
                     If Target_File <> vbNullString Then
-                        Stop
                         ' File non-responsive itself or is waiting for child processes
-                        'TODO: procedure that kills process with its children
                         
+                        Call KillProcessWithDependents(CStr(tmp_process_id))
                     Else
                         ' if child process is just a scope - simply kill it
-                        objProc.Terminate
+                        ' kill Dependent processes just in case (who knows what macro is embedded)
+                        Call KillProcessWithDependents(CStr(tmp_process_id))
                     End If
     
                     ' if time limit is much larger than needed time - it is valid to say that process died for some reason
                     ' probably worth to try it again... it depends
                     ' self-restarter could fail to restart
-                End If
-            End If
-        Loop
+                End If ' If InStr(Get_Log_Last_Record(CStr(ProcessID)), "Waiting") > 0 Then
+            End If ' If Round(Round((Now() - BeforeAction) * 86400, 0) / 60, 0) >
+        Loop ' Do While objProc.Status = 0 ' Running
         
-    End If
+    End If ' If (Scope <> vbNullString And ThisWorkbook.Names("SETTINGS_SCOPES_IN_PARALLEL").RefersToRange.Value = "Y") Or _
+        (Target_File <> vbNullString And ThisWorkbook.Names("SETTINGS_FILES_IN_PARALLEL").RefersToRange.Value = "Y") Then
                                                                   
-                                  
+
     Call Write_Log("Process " & tmp_process_id & " is completed # " & Round((Now() - BeforeAction) * 86400, 0) & "s")
     
 Exit_Sub:
@@ -142,7 +143,7 @@ Exit_Sub:
     Else
         ' sequential execution - if process still exists - destroy it
         If Not objProc Is Nothing Then
-            objProc.Terminate
+            Call KillProcessWithDependents(CStr(objProc.ProcessID))
         End If
     End If
     
@@ -168,6 +169,7 @@ Function Collect_Parameters(Optional Scope As String, Optional Target_File As St
     
     Dim str As String
     Dim Field_Name As String
+    Dim Parameter_Name As String
     
     ' Collect_Parameters = "/debug_mode/log_enabled/file_path:C:\Temp\Test.xlsx/" & _
         "result_folder_path:\\server_name\ssis in\/macro_before:test/macro_after:after" & _
@@ -200,7 +202,8 @@ Function Collect_Parameters(Optional Scope As String, Optional Target_File As St
     End If
     
     If ThisWorkbook.Names("SETTINGS_MACRO_BEFORE").RefersToRange.Value <> vbNullString Then
-        Collect_Parameters = Collect_Parameters & "/macro_before:" & ThisWorkbook.Names("SETTINGS_MACRO_BEFORE").RefersToRange.Value
+        Collect_Parameters = Collect_Parameters & "/macro_before:" & _
+            ThisWorkbook.Names("SETTINGS_MACRO_BEFORE").RefersToRange.Value
     End If
     
     If ThisWorkbook.Names("SETTINGS_SKIP_REFRESH_ALL").RefersToRange.Value <> vbNullString Then
@@ -269,6 +272,83 @@ Function Collect_Parameters(Optional Scope As String, Optional Target_File As St
         
     If ThisWorkbook.Names("SETTINGS_RESULT_SHEET_NAME").RefersToRange.Value <> vbNullString Then
         Collect_Parameters = Collect_Parameters & "/save_sheet:" & ThisWorkbook.Names("SETTINGS_RESULT_SHEET_NAME").RefersToRange.Value
+    End If
+    
+    Parameter_Name = "stop_before_open_wb"
+    Field_Name = "SETTINGS_STOP_BEFORE_OPEN_WB"
+    If ThisWorkbook.Names(Field_Name).RefersToRange.Value <> vbNullString Then
+        Collect_Parameters = Collect_Parameters & "/" & Parameter_Name & ":" & _
+            ThisWorkbook.Names(Field_Name).RefersToRange.Value
+    End If
+        
+    Parameter_Name = "stop_on_macro_before"
+    Field_Name = "SETTINGS_STOP_ON_MACRO_BEFORE"
+    If ThisWorkbook.Names(Field_Name).RefersToRange.Value <> vbNullString Then
+        Collect_Parameters = Collect_Parameters & "/" & Parameter_Name & ":" & _
+            ThisWorkbook.Names(Field_Name).RefersToRange.Value
+    End If
+    
+    Parameter_Name = "stop_before_refresh_all"
+    Field_Name = "SETTINGS_STOP_BEFORE_REFRESH_ALL"
+    If ThisWorkbook.Names(Field_Name).RefersToRange.Value <> vbNullString Then
+        Collect_Parameters = Collect_Parameters & "/" & Parameter_Name & ":" & _
+            ThisWorkbook.Names(Field_Name).RefersToRange.Value
+    End If
+                
+    Parameter_Name = "stop_after_refresh_all"
+    Field_Name = "SETTINGS_STOP_AFTER_REFRESH_ALL"
+    If ThisWorkbook.Names(Field_Name).RefersToRange.Value <> vbNullString Then
+        Collect_Parameters = Collect_Parameters & "/" & Parameter_Name & ":" & _
+            ThisWorkbook.Names(Field_Name).RefersToRange.Value
+    End If
+    
+    Parameter_Name = "stop_on_macro_after"
+    Field_Name = "SETTINGS_STOP_ON_MACRO_AFTER"
+    If ThisWorkbook.Names(Field_Name).RefersToRange.Value <> vbNullString Then
+        Collect_Parameters = Collect_Parameters & "/" & Parameter_Name & ":" & _
+            ThisWorkbook.Names(Field_Name).RefersToRange.Value
+    End If
+        
+    Parameter_Name = "save_sheets"
+    Field_Name = "SETTINGS_SAVE_SHEETS"
+    If ThisWorkbook.Names(Field_Name).RefersToRange.Value <> vbNullString Then
+        Collect_Parameters = Collect_Parameters & "/" & Parameter_Name & ":" & _
+            ThisWorkbook.Names(Field_Name).RefersToRange.Value
+    End If
+                
+    Parameter_Name = "delete_sheets"
+    Field_Name = "SETTINGS_DELETE_SHEETS"
+    If ThisWorkbook.Names(Field_Name).RefersToRange.Value <> vbNullString Then
+        Collect_Parameters = Collect_Parameters & "/" & Parameter_Name & ":" & _
+            ThisWorkbook.Names(Field_Name).RefersToRange.Value
+    End If
+        
+    Parameter_Name = "formulas_to_values"
+    Field_Name = "SETTINGS_FORMULAS_TO_VALUES"
+    If ThisWorkbook.Names(Field_Name).RefersToRange.Value <> vbNullString Then
+        Collect_Parameters = Collect_Parameters & "/" & Parameter_Name & ":" & _
+            ThisWorkbook.Names(Field_Name).RefersToRange.Value
+    End If
+            
+    Parameter_Name = "delete_wb_queries"
+    Field_Name = "SETTINGS_DELETE_WB_QUERIES"
+    If ThisWorkbook.Names(Field_Name).RefersToRange.Value <> vbNullString Then
+        Collect_Parameters = Collect_Parameters & "/" & Parameter_Name & ":" & _
+            ThisWorkbook.Names(Field_Name).RefersToRange.Value
+    End If
+            
+    Parameter_Name = "err_email_to"
+    Field_Name = "SETTINGS_ERROR_EMAIL_TO"
+    If ThisWorkbook.Names(Field_Name).RefersToRange.Value <> vbNullString Then
+        Collect_Parameters = Collect_Parameters & "/" & Parameter_Name & ":" & _
+            ThisWorkbook.Names(Field_Name).RefersToRange.Value
+    End If
+
+    Parameter_Name = "succ_email_to"
+    Field_Name = "SETTINGS_SUCCESS_EMAIL_TO"
+    If ThisWorkbook.Names(Field_Name).RefersToRange.Value <> vbNullString Then
+        Collect_Parameters = Collect_Parameters & "/" & Parameter_Name & ":" & _
+            ThisWorkbook.Names(Field_Name).RefersToRange.Value
     End If
     
 '    Debug.Print Collect_Parameters

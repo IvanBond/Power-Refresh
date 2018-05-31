@@ -1,5 +1,6 @@
 Attribute VB_Name = "Globals"
 Option Explicit
+Option Compare Text
 
 #If VBA7 Then
     Public Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal lngMilliSeconds As Long)
@@ -11,6 +12,8 @@ Public Control_Table As ListObject
 Public LOG_Table As ListObject
 Public Excel_Path As String
 Public Refresher_Path As String
+
+Public ActivityTrackingFilePath As String
 '
 
 Sub Set_Global_Variables()
@@ -22,5 +25,7 @@ Sub Set_Global_Variables()
     ' "C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE"
     
     Refresher_Path = ThisWorkbook.path & "\Refresher.xlsb"
+    
+    ActivityTrackingFilePath = ThisWorkbook.Names("SETTINGS_ActivityTrackingFilePath").RefersToRange.Value
     
 End Sub

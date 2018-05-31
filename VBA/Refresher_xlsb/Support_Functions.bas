@@ -1,5 +1,7 @@
 Attribute VB_Name = "Support_Functions"
 Option Explicit
+Option Compare Text
+
 
 ' http://www.fmsinc.com/microsoftaccess/modules/examples/avoiddoevents.asp
 ' http://analystcave.com/vba-sleep-vs-wait/
@@ -11,8 +13,8 @@ Public Sub WaitSeconds(intSeconds As Integer)
 
     Do
         ' Yield to other programs (better than using DoEvents which eats up all the CPU cycles)
-        Sleep 100
-        DoEvents
+        Sleep 300
+        'DoEvents ' - dangerous method, can hang forever. Possibly due to addins
     Loop Until Now >= datTime
 End Sub
 

@@ -1,0 +1,10 @@
+2018-06-01 00:57:14# 3240 # ********************************* BEGIN *********************************
+2018-06-01 00:57:14# 3240 # Opening workbook... C:\GitHub\Power-Refresh\Tests\TestSheetMacro.xlsb
+2018-06-01 00:57:15# 3240 # Workbook has been opened # 1s
+2018-06-01 00:57:15# 3240 # Begin Refresh_File_One_or_No_Scopes
+2018-06-01 00:57:15# 3240 # Calling macro Sheet1.Test
+2018-06-01 00:57:15# 3240 # 'Macro Before' completed # 0s
+2018-06-01 00:57:15# 3240 # Skipping RefreshAll
+2018-06-01 00:57:15# 3240 # No Macro_After
+2018-06-01 00:57:15# 3240 # Saving as C:\GitHub\Power-Refresh\Tests\TestSheetMacro.xlsb
+2018-06-01 00:57:15# 3240 # Refresh Successful
