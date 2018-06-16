@@ -21,7 +21,7 @@ Sub Check_And_Run()
     ' skip cycle step if Application is in edit mode
     If IsEditing Then
         Debug.Print Now, "Check_And_Run", "Edit Mode detected, Skip cycle step"
-        GoTo Exit_Sub
+        GoTo Exit_sub
     End If
     
     ' re-define each time, just in case
@@ -45,11 +45,25 @@ Sub Check_And_Run()
         ' or if Manual Trigger
         If (GetReportParameter(cell.Row, "Enabled") = "Y" And _
             GetReportParameter(cell.Row, "Next Run") < Now()) Or _
-                GetReportParameter(cell.Row, "Manual Trigger") <> vbNullString Then
+                GetReportParameter(cell.Row, "Force Start") <> vbNullString Then
             
             ' just in case check row validity
             If Is_Row_Valid(cell.Row) Then
-            
+                
+                ' if reached Excel processes limit - remember time when we reached the limit
+                If IfReachedLimitOfExcelProcesses(cell.Row) Then
+                    ' don't clear Manual Trigger / don't calc next run time...
+                    ' just check other rows and wait...
+                    GoTo Next_Task
+                End If
+                
+                ' if reached Limit of Workstation Resources - remember time when we reached the limit
+                If IfReachedLimitOfWorkstationResources(cell.Row) Then
+                    ' don't clear Manual Trigger / don't calc next run time...
+                    ' just check other rows and wait...
+                    GoTo Next_Task
+                End If
+
                 Call SetReportParameter(cell.Row, "Last Run", Now)
                 ' if we run task via putting Manual Trigger - we do not need to re-calc Next Run.
                 ' in other words, we re-calc next run only then Next Run < Now()
@@ -59,19 +73,12 @@ Sub Check_And_Run()
                 End If
                 
                 ' always clear Manual Trigger
-                Call SetReportParameter(cell.Row, "Manual Trigger", vbNullString)
+                Call SetReportParameter(cell.Row, "Force Start", vbNullString)
                 Call SetReportParameter(cell.Row, "Status", "In Process: 0:00")
-                                                
-                If Val(Application.Version) >= 15 Then
-                    Set objProc = objShell.Exec(Excel_Path & " /x " & _
-                            "/e" & WorksheetFunction.EncodeURL(Collect_Parameters(cell.Row)) & _
+                
+                Set objProc = objShell.Exec(Excel_Path & " /x " & _
+                            "/e" & Support_Functions.URLEncodeString(Collect_Parameters(cell.Row)) & _
                             " /r """ & Refresher_Path & """")
-                Else
-                    ' EncodeURL is not available in prev versions
-                    Set objProc = objShell.Exec(Excel_Path & " /x " & _
-                            "/e" & Support_Functions.URLEncode(Collect_Parameters(cell.Row)) & _
-                            " /r """ & Refresher_Path & """")
-                End If
                 
                 ' URL encoding is important because otherwise no chance to pass values with spaces and special chars
                 ' Excel execution through shell will trigger every value separated by space as new file to be opened
@@ -94,10 +101,11 @@ Sub Check_And_Run()
             End If ' if row is valid
                         
         End If ' check if enabled
-        
+
+Next_Task:
     Next cell
 
-Exit_Sub:
+Exit_sub:
     On Error Resume Next
     ThisWorkbook.Save
     Set objShell = Nothing
@@ -108,7 +116,7 @@ Exit_Sub:
 ErrHandler:
     Debug.Print Now, "Check_And_Run", Err.Number & ": " & Err.Description
     Err.Clear
-    GoTo Exit_Sub
+    GoTo Exit_sub
     Resume
 End Sub
 
@@ -117,6 +125,21 @@ Function GetReportParameter(Report_Row_ID As Long, strParameter As String)
     GetReportParameter = Control_Table.Parent.Cells(Report_Row_ID, _
         Control_Table.ListColumns(strParameter).Range.Column).Value
 End Function
+
+Function GetReportParameterByReportID(Report_ID As String, strParameter As String)
+    On Error Resume Next
+    Dim cell As Range
+    
+    For Each cell In Control_Table.ListColumns("Report ID *").DataBodyRange
+        If cell.Value = Report_ID Then
+            GetReportParameterByReportID = Control_Table.Parent.Cells(cell.Row, _
+                Control_Table.ListColumns(strParameter).Range.Column).Value
+            Exit For
+        End If
+    Next cell
+    Set cell = Nothing
+End Function
+
 
 Sub SetReportParameter(Report_Row_ID As Long, strParameter As String, svalue)
     On Error Resume Next
@@ -127,6 +150,43 @@ Sub SetReportParameter(Report_Row_ID As Long, strParameter As String, svalue)
         End If
     End If
 End Sub
+
+Private Function IfReachedLimitOfExcelProcesses(Report_Row_ID As Long)
+    On Error GoTo ErrHandler
+    'Check number of running Excel processes
+    If ReachedLimitOfExcelProcesses(Report_Row_ID) Then
+        
+        IfReachedLimitOfExcelProcesses = True
+        
+        ' count time of inability to start new process
+        ' send notification after certain time
+        If ReachedExcelProcessesLimitsTime = 0 Then
+            ' if it is first time - just remember time
+            ReachedExcelProcessesLimitsTime = Now
+        Else
+            ' check if more than limit time
+            If Now - ReachedExcelProcessesLimitsTime > _
+                    (Val(ThisWorkbook.Names("SETTINGS_MINUTES_CANT_START_EXCEL").RefersToRange.Value) / 24 / 60) Then
+                ' if cannot start Excel for 15 min, for example - send notification
+                Call SendNotification( _
+                    "Power Refresh: Warning! Number of Excel processes exceeded limit", _
+                    "Power Refresh Warning Message")
+            End If
+        End If
+    Else
+    ' reset counter
+        ReachedExcelProcessesLimitsTime = 0
+    End If
+
+Exit_sub:
+    Exit Function
+    
+ErrHandler:
+    Debug.Print Now, "IfReachedLimitOfExcelProcesses", Err.Number & ": " & Err.Description
+    Err.Clear
+    GoTo Exit_sub
+    Resume
+End Function
 
 Private Sub IfTerminateProcess(Report_Row_ID As Long)
     
@@ -142,6 +202,10 @@ Private Sub IfTerminateProcess(Report_Row_ID As Long)
         Call SetReportParameter(Report_Row_ID, "Status", "TERMINATED by User")
     End If
     
+End Sub
+
+Sub tttt()
+    Call IfInProcess(29)
 End Sub
 
 Sub IfInProcess(Report_Row_ID As Long)
@@ -179,13 +243,13 @@ Sub IfInProcess(Report_Row_ID As Long)
         End If ' If strProcesses <> vbNullString Then
     End If ' if Status contains In Process
 
-Exit_Sub:
+Exit_sub:
     Exit Sub
     
 ErrHandler:
     Debug.Print Now, "IfInProcess", Err.Number & ": " & Err.Description
     Err.Clear
-    GoTo Exit_Sub
+    GoTo Exit_sub
     Resume ' for debug
 End Sub
 
@@ -462,6 +526,13 @@ Function Collect_Parameters(Report_Row_ID As Long, Optional Scope As String) As 
             Control_Table.Parent.Cells(Report_Row_ID, Control_Table.ListColumns(Field_Name).Range.Column).Value
     End If
     
+    Field_Name = "Stop At Start"
+    If Control_Table.Parent.Cells(Report_Row_ID, _
+        Control_Table.ListColumns(Field_Name).Range.Column).Value <> vbNullString Then
+        Collect_Parameters = Collect_Parameters & "/stop_at_start:" & _
+            Control_Table.Parent.Cells(Report_Row_ID, Control_Table.ListColumns(Field_Name).Range.Column).Value
+    End If
+    
     Field_Name = "Stop on Macro Before"
     If Control_Table.Parent.Cells(Report_Row_ID, _
         Control_Table.ListColumns(Field_Name).Range.Column).Value <> vbNullString Then
@@ -538,36 +609,158 @@ Function CheckPath(path As String) As String
 ' adds "\" if there were no such char
 
     Dim objFSO As Object
+    Dim sPath As String
+    
     On Error Resume Next
     Set objFSO = CreateObject("Scripting.FileSystemObject")
     
+    sPath = path
+    ' remove leading and trailing quotes
+    If Left$(sPath, 1) = """" Then
+        sPath = Mid(path, 2)
+    End If
+    If Right$(sPath, 1) = """" Then
+        sPath = Left(sPath, Len(sPath) - 1)
+    End If
+    
     ' can't check existence of SharePoint file
     ' current verison supports only files on SharePoint
-    If Left(path, 4) <> "http" Then
-        If Not objFSO.FileExists(path) Then
+    If Left(sPath, 4) <> "http" Then
+        If Not objFSO.FileExists(sPath) Then
         ' file doesn't exists
         ' check if it is a folder
-            If Not objFSO.folderexists(path & IIf(Right$(path, 1) = "\", "", "\")) Then
+            If Not objFSO.folderexists(sPath & IIf(Right$(sPath, 1) = "\", "", "\")) Then
             ' folder doesn't exists
-            
+                CheckPath = vbNullString
+                GoTo Exit_Function
             Else
             ' folder exists
-                CheckPath = path & IIf(Right$(path, 1) = "\", "", "\")
+                CheckPath = sPath & IIf(Right$(sPath, 1) = "\", "", "\")
                 GoTo Exit_Function
             End If
         Else
         ' file exists
-            CheckPath = path
+            CheckPath = sPath
         End If
     Else
     ' SharePoint file / folder
     ' TODO - find a way to check SharePoint files and folders
+    ' by default - consider it is a path to file
+        If InStr(sPath, "?") > 0 Then
+        ' we don't need parameters
+            CheckPath = Left(sPath, InStr(sPath, "?") - 1)
+        Else
+            CheckPath = sPath
+        End If
     End If
 
 Exit_Function:
     Set objFSO = Nothing
     Err.Clear
 End Function
+
+Function ReachedLimitOfExcelProcesses(Report_Row_ID As Long) As Boolean
+    Dim ScopesCount As Long
+    
+    On Error GoTo ErrHandler
+    
+    ' if no parameter SETTINGS_PROCESS_COUNT_LIMIT provided - no limits
+    If ThisWorkbook.Names("SETTINGS_PROCESS_COUNT_LIMIT").RefersToRange.Value <> vbNullString Then
+    ' otherwise - estimate number of Excel copies required
+                
+        If GetReportParameter(Report_Row_ID, "Parallel Refresh of Scopes") = "Y" Then
+            
+            ScopesCount = UBound(Split(GetReportParameter(Report_Row_ID, "Scopes"), ",", , vbTextCompare)) + 1
+            
+            ReachedLimitOfExcelProcesses = (GetRunningProcessesCountByName("excel.exe") + ScopesCount > _
+                                            Val(ThisWorkbook.Names("SETTINGS_PROCESS_COUNT_LIMIT").RefersToRange.Value))
+        Else
+
+            ReachedLimitOfExcelProcesses = (GetRunningProcessesCountByName("excel.exe") + 1 > _
+                                            Val(ThisWorkbook.Names("SETTINGS_PROCESS_COUNT_LIMIT").RefersToRange.Value))
+                    
+        End If ' If GetReportParameter(Report_Row_ID, "Parallel Refresh of Scopes") = "Y" Then
+    End If ' ThisWorkbook.Names("SETTINGS_PROCESS_COUNT_LIMIT").RefersToRange.Value <> vbNullString Then
+    
+ErrHandler:
+    Err.Clear
+End Function
+
+Private Function IfReachedLimitOfWorkstationResources(Report_Row_ID As Long)
+    On Error GoTo ErrHandler
+    'Check number of running Excel processes
+    If ReachedLimitOfWorkstationResources(Report_Row_ID) Then
+        
+        IfReachedLimitOfWorkstationResources = True
+        
+        ' count time of inability to start new process
+        ' send notification after certain time
+        If ReachedExcelProcessesLimitsTime = 0 Then
+            ' if it is first time - just remember time
+            ReachedExcelProcessesLimitsTime = Now
+        Else
+            ' check if more than limit time
+            If Now - ReachedExcelProcessesLimitsTime > _
+                    (Val(ThisWorkbook.Names("SETTINGS_MINUTES_CANT_START_EXCEL").RefersToRange.Value) / 24 / 60) Then
+                ' if cannot start Excel for [%parameter%] minutes - send notification
+                Call SendNotification( _
+                    "Power Refresh: Warning! Workstation Resources Limits has been reached", _
+                    "Power Refresh Warning Message")
+            End If
+        End If
+    Else
+    ' reset counter
+        ReachedExcelProcessesLimitsTime = 0
+    End If
+
+Exit_sub:
+    Exit Function
+    
+ErrHandler:
+    Debug.Print Now, "IfReachedLimitOfWorkstationResources", Err.Number & ": " & Err.Description
+    Err.Clear
+    GoTo Exit_sub
+    Resume
+End Function
+
+Function ReachedLimitOfWorkstationResources(Report_Row_ID As Long) As Boolean
+    ' we need to check all running Excel proceses
+    ' take those that contain specific CommandLine generated by Reports Controller
+    ' get ReportID from there
+    ' for each ReportID - get parameter 'Required Resources (points)'
+    Dim tmpstr As String
+    Dim arr
+    Dim i As Integer
+    Dim UsedResources As Double
+    Dim ReportRequiredResources As Double
+    Dim WorkstationResourcesLimit As Double
+    
+    On Error GoTo ErrHandler
+    
+    tmpstr = GetListOfRunningReports
+    arr = Split(tmpstr, ",", , vbTextCompare)
+    
+    ' loop through the list of Report IDs
+    For i = LBound(arr) To UBound(arr)
+        ReportRequiredResources = Val(GetReportParameterByReportID(CStr(arr(i)), "Required Resources (points)"))
+        UsedResources = UsedResources + ReportRequiredResources
+    Next i
+    
+    ' Current Report Required resources
+    ReportRequiredResources = GetReportParameter(Report_Row_ID, "Required Resources (points)")
+    
+    ' check Settings - if no values - means no limit
+    If ThisWorkbook.Names("SETTINGS_WORKSTATION_RESOURCES_LIMIT").RefersToRange.Value <> vbNullString Then
+        WorkstationResourcesLimit = Val(ThisWorkbook.Names("SETTINGS_WORKSTATION_RESOURCES_LIMIT").RefersToRange.Value)
+        
+        ReachedLimitOfWorkstationResources = (UsedResources + ReportRequiredResources > WorkstationResourcesLimit)
+        ' if more - then can't start Report_Row_ID-report
+    End If
+
+ErrHandler:
+    Err.Clear
+End Function
+
 
 ' OBSOLETE
 

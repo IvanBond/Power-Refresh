@@ -28,7 +28,7 @@ Sub KillProcessWithDependents(ProcessID As String)
         objProcess.Terminate
     Next
 
-Exit_Sub:
+Exit_sub:
     On Error Resume Next
     Set colProcess = Nothing
     Set objWMIService = Nothing
@@ -39,7 +39,7 @@ Exit_Sub:
 ErrHandler:
     Debug.Print Now, "KillProcessWithDependents", Err.Number & ": " & Err.Description
     Err.Clear
-    GoTo Exit_Sub
+    GoTo Exit_sub
     Resume
 End Sub
 
@@ -96,10 +96,10 @@ Function GetProcessStartTime(ProcessID As String) As Date
         'objProcess.Terminate
         GetProcessStartTime = DateValue(WMIDateStringToDateTime(objProcess.CreationDate)) + _
                 TimeValue(WMIDateStringToDateTime(objProcess.CreationDate))
-        GoTo Exit_Sub
+        GoTo Exit_sub
     Next
 
-Exit_Sub:
+Exit_sub:
     On Error Resume Next
     Set colProcess = Nothing
     Set objWMIService = Nothing
@@ -110,7 +110,7 @@ Exit_Sub:
 ErrHandler:
     Debug.Print Now, "GetProcessStartTime", Err.Number & ": " & Err.Description
     Err.Clear
-    GoTo Exit_Sub
+    GoTo Exit_sub
     Resume
 End Function
 
@@ -142,7 +142,7 @@ Function CheckProcessExist(ProcessID As String) As Boolean
         Exit For
     Next
 
-Exit_Sub:
+Exit_sub:
     On Error Resume Next
     Set process = Nothing
     Set colProcess = Nothing
@@ -153,7 +153,7 @@ Exit_Sub:
 ErrHandler:
     Debug.Print Now, "CheckProcessExist", Err.Number & ": " & Err.Description
     Err.Clear
-    GoTo Exit_Sub
+    GoTo Exit_sub
     Resume
 End Function
 

@@ -19,6 +19,7 @@ Sub ParseArgs(sCmdLine As String)
     iStart = InStr(1, sCmdLine, " /x /e") ' can be an issue with folders on SharePoint ?
     If iStart = 0 Then Exit Sub       'Couldn't find ' /e' so assume no parameters were given
     'sArgs = decodeURL(Mid(sCmdLine, iStart + 6)) ' pass URL encoded parameters to be able to use spaces in file / folder path, commas in lists and other chars
+    'Err.Clear
     
     iEnd = InStr(1, sCmdLine, " /r """) ' if file path provided in the end
     sArgs = decodeURL(Mid(sCmdLine, iStart + 6, iEnd - iStart - 6))
@@ -53,6 +54,7 @@ Sub ParseArgs(sCmdLine As String)
         
         ElseIf vTemp(0) = "target_path" Then
             ThisWorkbook.Names("SETTINGS_TARGET_PATH").RefersToRange.Value = Replace(vTemp(1), "|", "/") ' return '/'
+            
         ElseIf vTemp(0) = "macro_before" Then
             ThisWorkbook.Names("SETTINGS_MACRO_BEFORE").RefersToRange.Value = Trim(vTemp(1))
         ElseIf vTemp(0) = "macro_after" Then
@@ -118,3 +120,6 @@ Sub ParseArgs(sCmdLine As String)
     
 End Sub
 
+Sub ttt()
+    Debug.Print Now
+End Sub

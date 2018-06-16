@@ -2,8 +2,17 @@ Attribute VB_Name = "Support_Functions"
 Option Explicit
 Option Compare Text
 
+Function URLEncodeString(str As String) As String
+    If Val(Application.Version) >= 15 Then
+        URLEncodeString = WorksheetFunction.EncodeURL(str)
+    Else
+        ' EncodeURL is not available in prev versions
+        URLEncodeString = Support_Functions.URLEncode(str)
+    End If
+End Function
+
 ' http://stackoverflow.com/questions/218181/how-can-i-url-encode-a-string-in-excel-vba
-Public Function URLEncode( _
+Function URLEncode( _
    StringVal As String, _
    Optional SpaceAsPlus As Boolean = False) As String
 
@@ -57,3 +66,38 @@ ErrHandler:
         Err.Clear
     End If
 End Function
+
+Function decodeURL(str As String) As String
+    
+     ' =SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(CELL_WITH_URL,”%3F”,”?”),”%20?,” “),”%25”, “%”),”%26?,”&”),”%3D”,”=”),”%7B”,”{“),”%7D”,”}”),”%5B”,”[“),”%5D”,”]”)
+     
+    ' https://excelsnippets.wordpress.com/2011/03/29/excel-vba-function-to-revert-url-encoded-strings-to-regular-strings/
+    Dim i As Integer
+    Dim txt As String
+    Dim hexChr As String
+
+   txt = str
+
+   'replace '+' with space
+   txt = Replace(txt, "+", " ")
+
+   For i = 1 To 255
+      Select Case i
+         Case 1 To 15
+            hexChr = "%0" & Hex(i)
+         Case 37
+            'skip '%' character
+         Case Else
+            hexChr = "%" & Hex(i)
+      End Select
+
+      txt = Replace(txt, UCase(hexChr), Chr(i))
+      txt = Replace(txt, LCase(hexChr), Chr(i))
+   Next
+
+   'replace '%' character
+   txt = Replace(txt, "%25", "%")
+   decodeURL = txt
+   
+End Function
+

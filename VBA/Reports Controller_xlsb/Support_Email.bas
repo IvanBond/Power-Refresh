@@ -129,7 +129,7 @@ Function Send_EMail_CDO(sFrom As String, _
     With oMyMail
             Set .Configuration = iConf
             .bodypart.Charset = "utf-8"
-            .To = sRecipients
+            .to = sRecipients
             
             If sCC <> vbNullString Then
             .cc = sCC
@@ -158,7 +158,7 @@ Function Send_EMail_CDO(sFrom As String, _
     
     Send_EMail_CDO = True
     
-Exit_Sub:
+Exit_sub:
     Set oMyMail = Nothing
     Set iConf = Nothing
     Set Flds = Nothing
@@ -169,7 +169,7 @@ ErrHandler:
     Debug.Print Now, "Send_EMail_CDO", Err.Number, Err.Description
     Err.Clear
     
-    GoTo Exit_Sub
+    GoTo Exit_sub
     Resume
 End Function
 
@@ -206,7 +206,7 @@ Function Send_Email_Outlook(sRecipients As String, _
             .SentOnBehalfOfName = sFrom
         End If
     
-        .To = sRecipients
+        .to = sRecipients
         If sCC <> vbNullString Then
             .cc = sCC
         End If
@@ -243,7 +243,7 @@ Function Send_Email_Outlook(sRecipients As String, _
     
     Send_Email_Outlook = True
 
-Exit_Sub:
+Exit_sub:
     Set oMyMail = Nothing
     Set oOutlook = Nothing
     Set objShell = Nothing
@@ -254,16 +254,9 @@ ErrHandler:
     Debug.Print Now, "Send_Email_Outlook", Err.Number, Err.Description
     Err.Clear
         
-    GoTo Exit_Sub
+    GoTo Exit_sub
     Resume
 End Function
-
-Private Sub TestSendOutlook()
-    Call Send_Email_Outlook("bondaiva@hilti.com", _
-        "Hello", "empty message", , , _
-        , "bondaiva@hilti.com", "bondaiva@hilti.com")
-End Sub
-    
 
 '
 'Sub Send_Email_Outlook(Subject As String, _

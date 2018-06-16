@@ -12,6 +12,7 @@ Public Control_Table As ListObject
 Public LOG_Table As ListObject
 Public Excel_Path As String
 Public Refresher_Path As String
+Public ReachedExcelProcessesLimitsTime As Date
 
 Public ActivityTrackingFilePath As String
 '

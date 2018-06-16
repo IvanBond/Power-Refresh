@@ -88,10 +88,13 @@ End Function
 
 Function GetReportName() As String
     Dim str As String
-    str = ThisWorkbook.Names("SETTINGS_TARGET_PATH").RefersToRange.Value
-    str = Right(str, Len(str) - InStrRev(str, "/", -1, vbTextCompare))  ' web address
-    str = Right(str, Len(str) - InStrRev(str, "\", -1, vbTextCompare))  ' file system address
-    str = Left(str, InStrRev(str, ".", -1, vbTextCompare) - 1) ' remove extension
-    GetReportName = Replace(str, "%20", " ")
+    
+    If ThisWorkbook.Names("SETTINGS_TARGET_PATH").RefersToRange.Value <> vbNullString Then
+        str = ThisWorkbook.Names("SETTINGS_TARGET_PATH").RefersToRange.Value
+        str = Right(str, Len(str) - InStrRev(str, "/", -1, vbTextCompare))  ' web address
+        str = Right(str, Len(str) - InStrRev(str, "\", -1, vbTextCompare))  ' file system address
+        str = Left(str, InStrRev(str, ".", -1, vbTextCompare) - 1) ' remove extension
+        GetReportName = Replace(str, "%20", " ")
+    End If
     ' TOThink: use decodeURL here. Low prio
 End Function

@@ -257,7 +257,7 @@ Sub Refresh_File_One_or_No_Scopes(Optional Scope As String)
         BeforeAction = Now()
         Call Write_Log("Starting RefreshAll")
         'If Not UpdateConnections Then
-        If Not RefreshWorkbook Then
+        If Not RefreshWorkbook(target_wb) Then
             ' error during refresh all
             Call Write_Log("Unexpected error during RefreshAll", True)
             GoTo ErrHandler

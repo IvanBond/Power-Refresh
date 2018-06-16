@@ -13,8 +13,6 @@ Option Compare Text
 Private Sub Workbook_Open()
     Dim str As String
     
-    'Stop
-    
     ThisWorkbook.Names("START_TIME").RefersToRange.Value = Now
     Call GetCurrentProcess
     
@@ -23,6 +21,11 @@ Private Sub Workbook_Open()
     ProcessID = CurrentProcess.ProcessID
     
     str = CurrentProcess.CommandLine
+
+    If InStr(str, "stop_at_start") > 0 Then
+        Stop
+    End If
+    
     ' CreationDate = CurrentProcess.CreationDate
     ' CurrentProcess.ExecutablePath - to get Excel Path
     
@@ -39,6 +42,7 @@ Private Sub Workbook_Open()
     End If
     
     Call ParseArgs(str) ' get command line parameters to named ranges
+    'Err.Clear
     
     If Not Set_Global_Settings Then GoTo ErrHandler
     If Not Check_Main_Parameters Then GoTo ErrHandler
