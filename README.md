@@ -1,17 +1,17 @@
 # Scheduler and Refresher for Excel files
 
-Purpose of this solution is to help with udpdate of Excel reports / data models / just files - in general, any of Excel files that you need to refresh on schedule.
+Reports Controller helps to schedule udpdate of Excel reports / data models / just files. In general, any Excel file.
 
-This is an open-source refresher that is aiming to optimize self-service Excel solutions on Windows workstations
+It is an open-source solution that is focused on optimization of self-service Excel-based reports
 
     - without administator rights
     - without purchasing additional software
 
-only Excel is needed, and possibility to run VBA macros on workstation.
+only Excel is needed (Excel 2016 and later), and possibility to run VBA macros on workstation.
 
 # How to use this solution
 
-1. Download [Power Refresh.zip](https://github.com/IvanBond/Power-Refresh/releases)
+1. Download latest release [Power Refresh.zip](https://github.com/IvanBond/Power-Refresh/releases)
 2. Unpack it on C:\ drive
 3. Open 'Reports Controller' and test how it works on test files
 4. Configure your own schedule and parameters for your workbooks
@@ -23,7 +23,7 @@ If you don't like idea to use proposed Excel scheduler (Reports Controller), you
 
 Just call it from VBSciprt or .BAT file, see sample [Starter.vbs](https://github.com/IvanBond/Power-Refresh/blob/master/Starter.vbs).
 
-How to schedule .vbs or .bat you may see [here](https://www.youtube.com/watch?v=oC_i1Cf9O2w).
+How to schedule .vbs or .bat you may see on video [here](https://www.youtube.com/watch?v=oC_i1Cf9O2w).
 
 # History of idea
 
@@ -31,16 +31,16 @@ Typically, reporting specialists are interested in automated way of reports prep
 
 When reports are done as Excel files that contain
 
-    - Power Query (Get & Transform) queries, which pulling data from some sources
+    - Power Query (Get & Transform) queries, which pulling data from multiple sources
     - Data Model (aka PowerPivot) to digest data and calculate measure with DAX 
     - connections to enterprise sources, such as SAP BI, SSAS, Azure Data Lake etc.
-    - usual Excel formulas
-    - Pivot Tables, Pivot Charts, usual Charts, shapes etc. - in general - visualization
+    - ordinary Excel formulas
+    - Pivot Tables, Pivot Charts, usual Charts, shapes etc.
     - etc.
   
-developer needs a way to refresh such content in his workbooks.
+developer needs a way to refresh content in workbooks with zero or minimum of manual effort.
 
-Imagine situation when reports developer has 50 Excel models or more. Would be great if such 'farm of reports' can be refreshed during night, once per day, per month, or every hour - in other words - at planned time. And, in addition, reporting specialist would have a simple solution to control all of them - kind of Control Panel.
+Imagine situation when reports developer has 50 Excel models or more. Would be great if such 'farm of reports' could be refreshed during night, once per day, per month, or every hour - in other words - each file at planned time. And, in addition, reporting specialist would have a simple solution to control all of them - kind of Control Panel (Mission Control Centre).
     
 Basic idea of refresh is very simple. 
 Refresher must be able
@@ -54,9 +54,10 @@ Refresher must be able
 
 that's all.
 
-But this is only basics. And this not always match to specific needs. Some want to run macro before RefreshAll, or instead of RefreshAll they want to refresh several PQ queries in defined order, or run macro after RefreshAll, or something else. In Self-Service BI area we can find endless number of scenarios. 
+But this is only basic scenario. Some reports require to run macro before RefreshAll, or instead of RefreshAll they want to refresh several PQ queries in defined order, or run macro after RefreshAll, or something else. In Self-Service BI area we can find endless number of scenarios.
 
-Having open-source refresher, analysts can adjust it for their needs as they usually know VBA.
+Provided solution is flexible enough to manage many scenarios out-of-the-box, just need to tweak parameters, not coding required.
+However, having open-source refresher, analysts can adjust it for their needs as they usually know VBA.
 
 # What additional requirements can we expect?
 
@@ -70,8 +71,12 @@ Having open-source refresher, analysts can adjust it for their needs as they usu
     
 For example, if your enterprise data source is SAP BI - BO or BW, you can integrate this solution with another one - [SAP BOA Automation](https://github.com/IvanBond/SAP-BOA-Automation)
 
-Nothing should stop Self-Service BI developers from achieving business goals! That's why this project is done in Visual Basic for Applications. VBA is a 'must-have' skill for reporting specialist in companies with Excel-based reporting.
+Nothing should stop Self-Service BI developers from achieving business goals! That's why this project is done in Visual Basic for Applications.
 
 Purchase and installation of software can be a problem for many specialists in large organizations due to strict IT policy.
 
 Therefore, basic script from this project can be adapted to particular needs easily by those who are familiar with VBA/VBScipt.
+
+# Why not Windows Task Scheduler
+
+It requires admin rights, hard to manage many reports (e.g. no sorting by time), no control over used resourses or number of running Excel sessions, not readable log, hard to transfer tasks from one workstation to another (comparing to Copy/Paste of Excel file) etc.
