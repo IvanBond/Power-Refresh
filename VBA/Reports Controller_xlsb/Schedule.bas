@@ -25,6 +25,9 @@ Sub ReCalcNextRunForAllReports()
         Exit Sub
     End If
     
+    On Error GoTo ErrHandler
+    
+    Application.ScreenUpdating = False
     If Control_Table Is Nothing Then
         Call Set_Global_Variables
     End If
@@ -32,6 +35,17 @@ Sub ReCalcNextRunForAllReports()
     For Each cell In Control_Table.ListColumns("Report ID *").DataBodyRange
         Call SetReportParameter(cell.Row, "Next Run", GetScheduledRunTime(cell.Row))
     Next cell
+
+Exit_sub:
+    On Error Resume Next
+    Application.ScreenUpdating = True
+    Exit Sub
+    
+ErrHandler:
+    Debug.Print Now, "ReCalcNextRunForAllReports", Err.Number & ": " & Err.Description
+    Err.Clear
+    GoTo Exit_sub
+    Resume
 End Sub
 
 Sub ttt()

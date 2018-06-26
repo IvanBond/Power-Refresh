@@ -10,14 +10,14 @@ Public Const timerSeconds As Single = 60 ' seconds
                            ' Use LongLong and LongPtr
 
     Private Declare PtrSafe Function SetTimer Lib "user32" _
-                                    (ByVal hwnd As LongPtr, _
+                                    (ByVal hWnd As LongPtr, _
                                      ByVal nIDEvent As LongPtr, _
                                      ByVal uElapse As LongLong, _
                                      ByVal lpTimerFunc As LongPtr _
                                      ) As LongLong
 
     Public Declare PtrSafe Function KillTimer Lib "user32" _
-                                    (ByVal hwnd As LongPtr, _
+                                    (ByVal hWnd As LongPtr, _
                                      ByVal nIDEvent As LongPtr _
                                      ) As LongLong
     Public TimerID As LongPtr
@@ -27,13 +27,13 @@ Public Const timerSeconds As Single = 60 ' seconds
                       ' Use LongPtr only, LongLong is not available
 
     Private Declare PtrSafe Function SetTimer Lib "user32" _
-                                    (ByVal hwnd As LongPtr, _
+                                    (ByVal hWnd As LongPtr, _
                                      ByVal nIDEvent As Long, _
                                      ByVal uElapse As Long, _
                                      ByVal lpTimerFunc As LongPtr) As LongPtr
 
     Private Declare PtrSafe Function KillTimer Lib "user32" _
-                                    (ByVal hwnd As LongPtr, _
+                                    (ByVal hWnd As LongPtr, _
                                      ByVal nIDEvent As Long) As Long
 
     Public TimerID As LongPtr
@@ -41,13 +41,13 @@ Public Const timerSeconds As Single = 60 ' seconds
 #Else    ' 32 bit Excel
 
     Private Declare Function SetTimer Lib "user32" _
-                            (ByVal hwnd As Long, _
+                            (ByVal hWnd As Long, _
                              ByVal nIDEvent As Long, _
                              ByVal uElapse As Long, _
                              ByVal lpTimerFunc As Long) As Long
 
     Public Declare Function KillTimer Lib "user32" _
-                            (ByVal hwnd As Long, _
+                            (ByVal hWnd As Long, _
                              ByVal nIDEvent As Long) As Long
 
     Public TimerID As Long
@@ -56,7 +56,7 @@ Public Const timerSeconds As Single = 60 ' seconds
 
 #If VBA7 And Win64 Then     ' 64 bit Excel under 64-bit windows  ' Use LongLong and LongPtr
                             ' Note that wMsg is always the WM_TIMER message, which actually fits in a Long
-    Public Sub TimerProc(ByVal hwnd As LongPtr, _
+    Public Sub TimerProc(ByVal hWnd As LongPtr, _
                          ByVal wMsg As LongLong, _
                          ByVal idEvent As LongPtr, _
                          ByVal dwTime As LongLong)
@@ -69,7 +69,7 @@ Public Const timerSeconds As Single = 60 ' seconds
     End Sub
 #ElseIf VBA7 Then          ' 64 bit Excel in all environments
                            ' Use LongPtr only
-    Public Sub TimerProc(ByVal hwnd As LongPtr, _
+    Public Sub TimerProc(ByVal hWnd As LongPtr, _
                          ByVal wMsg As Long, _
                          ByVal idEvent As LongPtr, _
                          ByVal dwTime As Long)
@@ -79,7 +79,7 @@ Public Const timerSeconds As Single = 60 ' seconds
     End Sub
 
 #Else    ' 32 bit Excel
-    Public Sub TimerProc(ByVal hwnd As Long, _
+    Public Sub TimerProc(ByVal hWnd As Long, _
                          ByVal wMsg As Long, _
                          ByVal idEvent As Long, _
                          ByVal dwTime As Long)

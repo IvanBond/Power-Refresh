@@ -132,11 +132,15 @@ End Function
 
 Function Set_Global_Settings() As Boolean
     On Error Resume Next
+    
     With Application
     ' visible if only Debug Mode
+        .StatusBar = "Updating Global Settings"
         .Visible = (ThisWorkbook.Names("SETTINGS_DEBUG_MODE").RefersToRange.Value = "Y")
-        .DisplayAlerts = (ThisWorkbook.Names("SETTINGS_DEBUG_MODE").RefersToRange.Value = "Y")
-        .ScreenUpdating = (ThisWorkbook.Names("SETTINGS_DEBUG_MODE").RefersToRange.Value = "Y")
+        .DisplayAlerts = .Visible
+        .ScreenUpdating = .Visible
+        
+        'DoEvents ' ???
         
         '.Interactive = (ThisWorkbook.Names("SETTINGS_DEBUG_MODE").RefersToRange.Value <> vbNullString)
         ' .EnableCancelKey = xlDisabled  'Turn off the Esc key
@@ -197,6 +201,7 @@ Function Set_Global_Settings() As Boolean
     
     Set Child_Processes_Table = ThisWorkbook.Sheets("Refresher").ListObjects("CHILD_PROCESSES")
     
+    Application.StatusBar = vbNullString
     bGlobalError = (Err.Number <> 0)
     Set_Global_Settings = (Err.Number = 0)
 End Function

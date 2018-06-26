@@ -129,7 +129,7 @@ Function Send_EMail_CDO(sFrom As String, _
     With oMyMail
             Set .Configuration = iConf
             .bodypart.Charset = "utf-8"
-            .to = sRecipients
+            .To = sRecipients
             
             If sCC <> vbNullString Then
             .cc = sCC
@@ -206,7 +206,7 @@ Function Send_Email_Outlook(sRecipients As String, _
             .SentOnBehalfOfName = sFrom
         End If
     
-        .to = sRecipients
+        .To = sRecipients
         If sCC <> vbNullString Then
             .cc = sCC
         End If

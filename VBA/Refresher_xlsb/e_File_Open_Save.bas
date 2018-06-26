@@ -18,6 +18,7 @@ Function Open_Target_File() As Boolean
     ' if need to refresh model with Scope and save inplace - use Parameters:SCOPE=XXX and Save_Inplace = Y in Reports Controller
     
     bReadOnly = (ThisWorkbook.Names("SETTINGS_SAVE_INPLACE").RefersToRange.Value = vbNullString)
+    
     Set target_wb = Application.Workbooks.Open(Filename:=ThisWorkbook.Names("SETTINGS_TARGET_PATH").RefersToRange.Value, _
         UpdateLinks:=True, ReadOnly:=bReadOnly, IgnoreReadOnlyRecommended:=True, AddToMru:=False)
     

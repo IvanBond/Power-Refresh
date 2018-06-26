@@ -46,7 +46,6 @@ Function RefreshWorkbook(Optional Wb As Workbook) As Boolean
             WaitSeconds 5
         End If
     End If
-    
     Err.Clear
     On Error GoTo ErrHandler
     
@@ -55,6 +54,7 @@ Function RefreshWorkbook(Optional Wb As Workbook) As Boolean
     ' however, if workbook is done for Power Refresh solution, it should not contain "background" connections
     ' create 2D array, restore settings after update
     Application.StatusBar = "Switching off background refresh..."
+    On Error Resume Next
     For Each cnct In target_wb.Connections
         Select Case cnct.Type
             Case xlConnectionTypeODBC
@@ -63,6 +63,8 @@ Function RefreshWorkbook(Optional Wb As Workbook) As Boolean
                 cnct.OLEDBConnection.BackgroundQuery = False
         End Select
     Next cnct
+    Err.Clear
+    On Error GoTo ErrHandler
     
     Application.StatusBar = "Refreshing Data Model and Connections..."
     target_wb.RefreshAll

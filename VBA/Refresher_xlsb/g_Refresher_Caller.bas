@@ -49,6 +49,8 @@ Sub Refresher_Caller(Optional Scope As String, Optional Target_File As String)
                         " /r """ & Refresher_Path & """")
     End If
     
+    WaitSeconds 5
+    
     tmp_process_id = objProc.ProcessID
     If Err.Number <> 0 Then
         Call Write_Log("Couldn't create process", bMandatoryLogRecord)
@@ -84,7 +86,7 @@ Sub Refresher_Caller(Optional Scope As String, Optional Target_File As String)
         
         Do While objProc.Status = 0 ' Running
             WaitSeconds 10
-            
+                        
             ' Process handles errors during execution itself
             
             ' in addition - we can check it from outside to prevent it running infinitely

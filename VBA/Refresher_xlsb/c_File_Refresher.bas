@@ -115,7 +115,7 @@ Sub Refresh_File_For_Set_Of_Scopes()
                 If arrChild_Processes(3, i).Status = 0 Then
                     bStillRunning = True
                 End If
-                
+                                
                 ' TODO:
                 ' if Debug Mode - display status in Child Processes Table
                 

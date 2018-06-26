@@ -13,7 +13,7 @@ Public Sub WaitSeconds(intSeconds As Integer)
 
     Do
         ' Yield to other programs (better than using DoEvents which eats up all the CPU cycles)
-        Sleep 300
+        Sleep 500
         'DoEvents ' - dangerous method, can hang forever. Possibly due to addins
     Loop Until Now >= datTime
 End Sub

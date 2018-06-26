@@ -13,6 +13,23 @@ Option Compare Text
 Private Sub Workbook_Open()
     Dim str As String
     
+    ' debug area
+'    Application.Visible = True
+'    WaitSeconds 1
+'    DoEvents
+'    WaitSeconds 1
+'    Application.Wait Now + TimeValue("0:00:05")
+'    ThisWorkbook.Sheets("Refresher").Activate
+'    Application.Calculate
+'    DoEvents
+    
+    'ThisWorkbook.Windows(1).Visible = True
+    'Application.Visible = True
+    'ShowWindow Application.HWND, SW_SHOW
+    
+    'MsgBox "Hello!"
+    ' end of debug area
+    
     ThisWorkbook.Names("START_TIME").RefersToRange.Value = Now
     Call GetCurrentProcess
     
