@@ -4,10 +4,10 @@ Reports Controller helps to schedule udpdate of Excel reports / data models / ju
 
 It is an open-source solution that is focused on optimization of Excel-based reports
 
-    - No administator rights
-    - No purchasing additional software
+    - No administrator rights needed
+    - No purchasing additional software needed
 
-only Excel is needed (Excel 2016 and later), and possibility to run VBA macros on workstation.
+only Excel 2016 or later version, and possibility to run VBA macros on workstation.
 
 # How to use this solution
 
